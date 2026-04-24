@@ -2,9 +2,11 @@ import {
   Alert,
   Button,
   Card,
+  Col,
   Empty,
   Progress,
   Radio,
+  Row,
   Space,
   Tag,
   Tooltip,
@@ -16,11 +18,12 @@ import {
   RightOutlined,
   StarOutlined,
 } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
-import { usePracticeStore } from '../stores/usePracticeStore';
+import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '../components/shared/PageHeader';
+import { usePracticeStore } from '../stores/usePracticeStore';
 
 export function PracticeSolvePage() {
+  const navigate = useNavigate();
   const {
     questions,
     currentIndex,
@@ -37,11 +40,11 @@ export function PracticeSolvePage() {
       <>
         <PageHeader title="문제 풀이" description="생성된 문제가 없습니다." />
         <Empty
-          description="먼저 AI 맞춤 문제를 생성해 주세요."
+          description="먼저 AI 맞춤 문제를 생성해주세요."
           image={Empty.PRESENTED_IMAGE_SIMPLE}
         >
-          <Button type="primary">
-            <Link to="/practice/create">문제 생성으로 이동</Link>
+          <Button type="primary" onClick={() => navigate('/practice/create')}>
+            문제 생성으로 이동
           </Button>
         </Empty>
       </>
@@ -59,78 +62,83 @@ export function PracticeSolvePage() {
         description="지문을 읽고 답을 선택한 뒤 정답과 해설을 확인합니다."
         extra={<Tag color="processing">{currentIndex + 1} / {questions.length}</Tag>}
       />
-      <div className="solve-grid">
-        <Card>
-          <Space direction="vertical" size={20} style={{ width: '100%' }}>
-            <Progress percent={Math.round(((currentIndex + 1) / questions.length) * 100)} />
-            <Typography.Title level={3}>{question.title}</Typography.Title>
-            <Alert type="info" message="지문" description={question.passage} />
-            <Typography.Title level={4}>{question.question}</Typography.Title>
-            <Radio.Group
-              value={selected}
-              onChange={(event) => selectAnswer(question.id, event.target.value)}
-              style={{ width: '100%' }}
-            >
-              {question.options.map((option) => (
-                <Radio key={option} value={option} className="answer-option">
-                  {option}
-                </Radio>
-              ))}
-            </Radio.Group>
-            {checked && (
-              <Alert
-                showIcon
-                type={isCorrect ? 'success' : 'error'}
-                message={isCorrect ? '정답입니다' : '다시 확인이 필요합니다'}
-                description={question.explanation}
-              />
-            )}
-          </Space>
-        </Card>
-        <Space direction="vertical" size={16} style={{ width: '100%' }}>
-          <Card title="풀이 조작">
-            <Space direction="vertical" style={{ width: '100%' }}>
-              <Button
-                type="primary"
-                icon={<CheckCircleOutlined />}
-                disabled={!selected}
-                onClick={() => checkAnswer(question.id)}
-              >
-                정답 확인
-              </Button>
-              <Space>
-                <Button
-                  icon={<LeftOutlined />}
-                  disabled={currentIndex === 0}
-                  onClick={() => goToQuestion(currentIndex - 1)}
-                >
-                  이전
-                </Button>
-                <Button
-                  icon={<RightOutlined />}
-                  disabled={currentIndex === questions.length - 1}
-                  onClick={() => goToQuestion(currentIndex + 1)}
-                >
-                  다음
-                </Button>
-              </Space>
-              <Tooltip title="북마크에 저장">
-                <Button aria-label="현재 문제 북마크" icon={<StarOutlined />}>
-                  북마크
-                </Button>
-              </Tooltip>
+
+      <Row gutter={[16, 16]} align="top">
+        <Col xs={24} lg={16}>
+          <Card>
+            <Space direction="vertical" size={20} style={{ width: '100%' }}>
+              <Progress percent={Math.round(((currentIndex + 1) / questions.length) * 100)} />
+              <Typography.Title level={3}>{question.title}</Typography.Title>
+              <Alert type="info" message="지문" description={question.passage} />
+              <Typography.Title level={4}>{question.question}</Typography.Title>
+              <Radio.Group value={selected} onChange={(event) => selectAnswer(question.id, event.target.value)}>
+                <Space direction="vertical" size={10}>
+                  {question.options.map((option) => (
+                    <Radio key={option} value={option}>
+                      {option}
+                    </Radio>
+                  ))}
+                </Space>
+              </Radio.Group>
+              {checked && (
+                <Alert
+                  showIcon
+                  type={isCorrect ? 'success' : 'error'}
+                  message={isCorrect ? '정답입니다' : '다시 확인이 필요합니다'}
+                  description={question.explanation}
+                />
+              )}
             </Space>
           </Card>
-          <Card title="다음 학습">
-            <Typography.Paragraph type="secondary">
-              오답이면 해설을 읽고 같은 유형 문제를 한 번 더 생성해 보세요.
-            </Typography.Paragraph>
-            <Button block>
-              <Link to="/practice/create">비슷한 문제 만들기</Link>
-            </Button>
-          </Card>
-        </Space>
-      </div>
+        </Col>
+
+        <Col xs={24} lg={8}>
+          <Space direction="vertical" size={16} style={{ width: '100%' }}>
+            <Card title="문제 조작">
+              <Space direction="vertical" style={{ width: '100%' }}>
+                <Button
+                  type="primary"
+                  icon={<CheckCircleOutlined />}
+                  disabled={!selected}
+                  onClick={() => checkAnswer(question.id)}
+                >
+                  정답 확인
+                </Button>
+                <Space>
+                  <Button
+                    icon={<LeftOutlined />}
+                    disabled={currentIndex === 0}
+                    onClick={() => goToQuestion(currentIndex - 1)}
+                  >
+                    이전
+                  </Button>
+                  <Button
+                    icon={<RightOutlined />}
+                    disabled={currentIndex === questions.length - 1}
+                    onClick={() => goToQuestion(currentIndex + 1)}
+                  >
+                    다음
+                  </Button>
+                </Space>
+                <Tooltip title="북마크에 추가">
+                  <Button aria-label="현재 문제 북마크" icon={<StarOutlined />}>
+                    북마크
+                  </Button>
+                </Tooltip>
+              </Space>
+            </Card>
+
+            <Card title="다음 학습">
+              <Typography.Paragraph type="secondary">
+                오답이면 해설을 읽고 같은 유형 문제를 한 번 더 생성해보세요.
+              </Typography.Paragraph>
+              <Button block onClick={() => navigate('/practice/create')}>
+                비슷한 문제 만들기
+              </Button>
+            </Card>
+          </Space>
+        </Col>
+      </Row>
     </>
   );
 }

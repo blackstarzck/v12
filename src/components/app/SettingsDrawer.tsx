@@ -1,5 +1,5 @@
 import { MoonOutlined, SettingOutlined, SunOutlined } from '@ant-design/icons';
-import { Drawer, Segmented, Space, Typography } from 'antd';
+import { Drawer, Flex, Segmented, Space, Typography } from 'antd';
 import { useThemeStore } from '../../stores/useThemeStore';
 import { appearanceOptions, type AppAppearance } from '../../theme';
 
@@ -25,12 +25,12 @@ export function SettingsDrawer({ open, onClose }: SettingsDrawerProps) {
       onClose={onClose}
       width={340}
     >
-      <Space direction="vertical" size={24} className="settings-drawer-content">
+      <Flex vertical gap={24}>
         <section aria-labelledby="appearance-setting-title">
-          <Space direction="vertical" size={12} className="settings-section">
-            <Typography.Title id="appearance-setting-title" level={5} className="settings-title">
+          <Flex vertical gap={12}>
+            <Typography.Text id="appearance-setting-title" strong>
               화면 모드
-            </Typography.Title>
+            </Typography.Text>
             <Segmented
               block
               value={appearance}
@@ -42,9 +42,9 @@ export function SettingsDrawer({ open, onClose }: SettingsDrawerProps) {
               onChange={(value) => setAppearance(value as AppAppearance)}
               aria-label="화면 모드 선택"
             />
-          </Space>
+          </Flex>
         </section>
-      </Space>
+      </Flex>
     </Drawer>
   );
 }

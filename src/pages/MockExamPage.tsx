@@ -2,12 +2,15 @@ import {
   Alert,
   Button,
   Card,
+  Col,
   Descriptions,
   Drawer,
+  Flex,
   Grid,
   Modal,
   Progress,
   Radio,
+  Row,
   Space,
   Statistic,
   Table,
@@ -32,7 +35,7 @@ function OmrContent({ answers, setAnswers }: { answers: Record<number, string>; 
   return (
     <Space direction="vertical" style={{ width: '100%' }}>
       {Array.from({ length: 10 }, (_, index) => index + 1).map((number) => (
-        <Space key={number} style={{ justifyContent: 'space-between', width: '100%' }}>
+        <Flex key={number} align="center" justify="space-between">
           <Typography.Text>{number}번</Typography.Text>
           <Radio.Group
             size="small"
@@ -45,7 +48,7 @@ function OmrContent({ answers, setAnswers }: { answers: Record<number, string>; 
               </Radio.Button>
             ))}
           </Radio.Group>
-        </Space>
+        </Flex>
       ))}
     </Space>
   );
@@ -75,59 +78,63 @@ export function MockExamPage({ mode = 'results' }: MockExamPageProps) {
             </>
           }
         />
-        <div className="exam-grid">
-          <Card>
-            <Space direction="vertical" size={18} style={{ width: '100%' }}>
-              <Alert
-                type="warning"
-                showIcon
-                message="남은 시간 42:18"
-                description="듣기 영역 6번 문제를 풀고 있습니다. 오디오 재생 후 답을 선택하세요."
-              />
-              <Progress percent={36} />
-              <Typography.Title level={3}>6번. 여자가 이어서 할 행동을 고르십시오.</Typography.Title>
-              <div className="inline-surface">
-                <Typography.Text strong>오디오 재생 영역</Typography.Text>
-                <Progress percent={58} size="small" />
-              </div>
-              <Radio.Group
-                value={answers[6]}
-                onChange={(event) => setAnswers({ ...answers, 6: event.target.value })}
-                style={{ width: '100%' }}
-              >
-                {[
-                  '자료를 다시 인쇄한다.',
-                  '회의 장소를 확인한다.',
-                  '발표 순서를 바꾼다.',
-                  '담당자에게 전화를 건다.',
-                ].map((option, index) => (
-                  <Radio key={option} value={String(index + 1)} className="answer-option">
-                    {option}
-                  </Radio>
-                ))}
-              </Radio.Group>
-              <Space>
-                <Button>이전 문제</Button>
-                <Button type="primary">다음 문제</Button>
+        <Row gutter={[16, 16]} align="top">
+          <Col xs={24} lg={16}>
+            <Card>
+              <Space direction="vertical" size={18} style={{ width: '100%' }}>
+                <Alert
+                  type="warning"
+                  showIcon
+                  message="남은 시간 42:18"
+                  description="듣기 영역 6번 문제를 풀고 있습니다. 오디오 재생 후 답을 선택하세요."
+                />
+                <Progress percent={36} />
+                <Typography.Title level={3}>6번. 여자가 이어서 할 행동을 고르십시오.</Typography.Title>
+                <Alert
+                  type="info"
+                  message="오디오 재생 영역"
+                  description={<Progress percent={58} size="small" />}
+                />
+                <Radio.Group value={answers[6]} onChange={(event) => setAnswers({ ...answers, 6: event.target.value })}>
+                  <Space direction="vertical" size={10}>
+                    {[
+                      '자료를 다시 인쇄한다.',
+                      '회의 장소를 확인한다.',
+                      '발표 순서를 바꾼다.',
+                      '담당자에게 전화를 건다.',
+                    ].map((option, index) => (
+                      <Radio key={option} value={String(index + 1)}>
+                        {option}
+                      </Radio>
+                    ))}
+                  </Space>
+                </Radio.Group>
+                <Space>
+                  <Button>이전 문제</Button>
+                  <Button type="primary">다음 문제</Button>
+                </Space>
               </Space>
-            </Space>
-          </Card>
-          {screens.lg ? (
-            <Card title={`OMR 답안지 · ${answered}/10문항`}>
-              <OmrContent answers={answers} setAnswers={setAnswers} />
             </Card>
-          ) : (
-            <Drawer
-              title={`OMR 답안지 · ${answered}/10문항`}
-              placement="bottom"
-              open={omrOpen}
-              onClose={() => setOmrOpen(false)}
-              height="75dvh"
-            >
-              <OmrContent answers={answers} setAnswers={setAnswers} />
-            </Drawer>
+          </Col>
+          {screens.lg && (
+            <Col xs={24} lg={8}>
+              <Card title={`OMR 답안지 · ${answered}/10문항`}>
+                <OmrContent answers={answers} setAnswers={setAnswers} />
+              </Card>
+            </Col>
           )}
-        </div>
+        </Row>
+        {!screens.lg && (
+          <Drawer
+            title={`OMR 답안지 · ${answered}/10문항`}
+            placement="bottom"
+            open={omrOpen}
+            onClose={() => setOmrOpen(false)}
+            height="75dvh"
+          >
+            <OmrContent answers={answers} setAnswers={setAnswers} />
+          </Drawer>
+        )}
         <Modal
           title="시험을 종료할까요?"
           open={endOpen}
@@ -154,17 +161,23 @@ export function MockExamPage({ mode = 'results' }: MockExamPageProps) {
         }
       />
       <Space direction="vertical" size={16} style={{ width: '100%' }}>
-        <div className="metric-grid">
-          <Card>
-            <Statistic title="최근 등급" value="5급 예상" />
-          </Card>
-          <Card>
-            <Statistic title="평균 점수" value={176} suffix="/ 300" />
-          </Card>
-          <Card>
-            <Statistic title="응시 횟수" value={8} suffix="회" />
-          </Card>
-        </div>
+        <Row gutter={[12, 12]}>
+          <Col xs={24} md={8}>
+            <Card>
+              <Statistic title="최근 등급" value="5급 예상" />
+            </Card>
+          </Col>
+          <Col xs={24} md={8}>
+            <Card>
+              <Statistic title="평균 점수" value={176} suffix="/ 300" />
+            </Card>
+          </Col>
+          <Col xs={24} md={8}>
+            <Card>
+              <Statistic title="응시 횟수" value={8} suffix="회" />
+            </Card>
+          </Col>
+        </Row>
         <Card title="영역별 점수">
           <Space direction="vertical" style={{ width: '100%' }}>
             <Descriptions column={{ xs: 1, md: 3 }}>

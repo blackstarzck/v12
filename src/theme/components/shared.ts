@@ -1,16 +1,5 @@
 import type { ThemeConfig } from 'antd';
 
-// Shared component tokens should stay mostly structural.
-export const sharedComponentTokens: ThemeConfig['components'] = {
-  Button: {
-    borderRadius: 8,
-    primaryShadow: 'none',
-  },
-  Card: {
-    borderRadiusLG: 8,
-    headerFontSize: 16,
-  },
-  Menu: {
-    itemBorderRadius: 8,
-  },
-};
+// Prefer Ant Design component defaults. Add shared overrides here only when the
+// project needs a documented deviation.
+export const sharedComponentTokens: ThemeConfig['components'] = {};

@@ -36,9 +36,7 @@ export function VocabularyPage() {
                 <Card>
                   <Space direction="vertical" style={{ width: '100%' }}>
                     <Tag>{item.level}</Tag>
-                    <Typography.Title level={3} style={{ margin: 0 }}>
-                      {item.word}
-                    </Typography.Title>
+                    <Typography.Title level={3}>{item.word}</Typography.Title>
                     <Typography.Text strong>{item.meaning}</Typography.Text>
                     <Typography.Paragraph type="secondary">{item.example}</Typography.Paragraph>
                     <Button block>암기 완료! 목록에서 제거</Button>

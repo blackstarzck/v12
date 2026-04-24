@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import { App as AntApp, ConfigProvider } from 'antd';
+import { App as AntApp, ConfigProvider, theme as antdThemeApi } from 'antd';
 import koKR from 'antd/locale/ko_KR';
 import App from './App';
 import { useThemeStore } from './stores/useThemeStore';
@@ -15,14 +15,14 @@ function Root() {
 
   useEffect(() => {
     const root = document.documentElement;
+    const resolvedToken = antdThemeApi.getDesignToken(activeTheme.antd);
 
     root.dataset.theme = activeTheme.name;
     root.dataset.appearance = appearance;
-
-    for (const [name, value] of Object.entries(activeTheme.cssVars)) {
-      root.style.setProperty(name, value);
-    }
-  }, [activeTheme.cssVars, activeTheme.name, appearance]);
+    root.style.colorScheme = appearance;
+    document.body.style.background = resolvedToken.colorBgLayout;
+    document.body.style.color = resolvedToken.colorText;
+  }, [activeTheme.antd, activeTheme.name, appearance]);
 
   return (
     <ConfigProvider locale={koKR} theme={activeTheme.antd}>

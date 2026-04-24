@@ -1,5 +1,4 @@
 import type { ThemeConfig } from 'antd';
-import { createAppCssVars } from './app-vars';
 import { sharedComponentTokens } from './components/shared';
 import { appearanceAlgorithms } from './global/algorithms';
 import { sharedSeedTokens } from './global/shared-seed';
@@ -50,13 +49,6 @@ function createThemeDefinition<Name extends string>(
 ): AppThemeDefinition<Name> {
   const appearanceConfig = preset.appearances[appearance];
   const antd = createThemeConfig(appearance, appearanceConfig);
-  const cssVars = createAppCssVars(appearance, antd);
-
-  for (const [name, value] of Object.entries(appearanceConfig.appVars ?? {})) {
-    if (typeof value === 'string') {
-      cssVars[name as keyof typeof cssVars] = value;
-    }
-  }
 
   return {
     name: preset.name,
@@ -64,7 +56,6 @@ function createThemeDefinition<Name extends string>(
     label: preset.label,
     description: preset.description,
     antd,
-    cssVars,
   };
 }
 

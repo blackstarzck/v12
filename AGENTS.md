@@ -25,6 +25,38 @@ Then read the Ant Design AI development rules:
 9. `docs/ant-design/07-review-checklist.md`
 10. `docs/ant-design/08-theme-architecture.md`
 
+## Theme Reading Gate
+
+Before implementing or modifying any UI work that can affect theme structure,
+token usage, or styled output, read `docs/ant-design/08-theme-architecture.md`.
+
+This applies especially to new pages, reusable components, AntD component
+customization, global style changes, CSS variable changes, and new visual
+states such as loading, empty, error, success, selected, or disabled.
+
+If that document is missing, outdated, or insufficient, use the fallback order
+documented inside `docs/ant-design/08-theme-architecture.md` and update
+conflicting local docs before finalizing work.
+
+## AntD Component Gate
+
+Before implementing or modifying any user-facing page, section, feature UI, or
+reusable UI component, read:
+
+1. `docs/ant-design/03-patterns-and-components.md`
+2. `docs/ant-design/06-ai-development-workflow.md`
+
+This applies especially to navigation, forms, tables, lists, cards, drawers,
+modals, tabs, steps, result/empty/loading/error states, and layout decisions.
+
+Do not create custom UI first. Check whether Ant Design already provides the
+component or pattern before writing custom markup, custom interaction logic, or
+custom layout CSS.
+
+If those local docs are missing, outdated, or insufficient, use AntD MCP or the
+official Ant Design component docs before inventing a custom component or
+pattern.
+
 ## Official Ant Design Sources
 
 Use these official sources when more detail is needed:
@@ -68,6 +100,8 @@ Expected MCP server:
 
 - Use Ant Design components before custom UI.
 - Use Ant Design theme tokens before hardcoded CSS.
+- Treat visual inline styles in JSX as custom styling, not as an exception.
+- Do not restyle Ant Design components in `style={{...}}` when AntD props, tokens, or documented patterns already solve the problem.
 - Keep theme decisions centralized.
 - Use the local font from `fonts/` as the default app font when app code exists.
 - Build the actual learning workspace first, not a landing page.

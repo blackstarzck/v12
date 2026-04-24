@@ -8,48 +8,50 @@ import {
   Table,
   Tabs,
   Tag,
+  Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '../components/shared/PageHeader';
 import { feedbackRecords } from '../data/mockData';
 import { useFeedbackStore } from '../stores/useFeedbackStore';
 import type { FeedbackRecord } from '../types/domain';
 
-const columns: ColumnsType<FeedbackRecord> = [
-  {
-    title: '제목',
-    dataIndex: 'title',
-    key: 'title',
-    render: (value, record) => (
-      <Link className="notice-table-title" to={`/writing/feedback/${record.id}`}>
-        {value}
-      </Link>
-    ),
-  },
-  { title: '유형', dataIndex: 'type', key: 'type', responsive: ['md'] },
-  {
-    title: '점수',
-    key: 'score',
-    render: (_, record) => (record.score ? `${record.score}/${record.total}` : '작성 중'),
-  },
-  {
-    title: '상태',
-    dataIndex: 'status',
-    key: 'status',
-    render: (status) => (
-      <Tag color={status === 'Draft' ? 'warning' : status === 'Needs review' ? 'error' : 'success'}>
-        {status}
-      </Tag>
-    ),
-  },
-  { title: '날짜', dataIndex: 'date', key: 'date', responsive: ['lg'] },
-];
-
 export function WritingFeedbackListPage() {
   const navigate = useNavigate();
   const { search, statusFilter, sortKey, setSearch, setStatusFilter, setSortKey } =
     useFeedbackStore();
+  const columns: ColumnsType<FeedbackRecord> = [
+    {
+      title: '제목',
+      dataIndex: 'title',
+      key: 'title',
+      render: (value, record) => (
+        <Typography.Text strong>
+          <Button type="link" onClick={() => navigate(`/writing/feedback/${record.id}`)}>
+            {value}
+          </Button>
+        </Typography.Text>
+      ),
+    },
+    { title: '유형', dataIndex: 'type', key: 'type', responsive: ['md'] },
+    {
+      title: '점수',
+      key: 'score',
+      render: (_, record) => (record.score ? `${record.score}/${record.total}` : '작성 중'),
+    },
+    {
+      title: '상태',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status) => (
+        <Tag color={status === 'Draft' ? 'warning' : status === 'Needs review' ? 'error' : 'success'}>
+          {status}
+        </Tag>
+      ),
+    },
+    { title: '날짜', dataIndex: 'date', key: 'date', responsive: ['lg'] },
+  ];
 
   const filterRecords = (draftOnly: boolean) => {
     const filtered = feedbackRecords
@@ -84,8 +86,8 @@ export function WritingFeedbackListPage() {
         title="쓰기 보관함"
         description="완료된 AI 피드백과 작성 중인 답안을 구분해 확인합니다."
         extra={
-          <Button type="primary">
-            <Link to="/writing/setup">새 쓰기 연습</Link>
+          <Button type="primary" onClick={() => navigate('/writing/setup')}>
+            새 쓰기 연습
           </Button>
         }
       />

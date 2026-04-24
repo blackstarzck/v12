@@ -2,8 +2,6 @@ import type { ThemeConfig } from 'antd';
 
 export type AppAppearance = 'light' | 'dark';
 
-export type AppCssVars = Record<`--${string}`, string>;
-
 export interface AppAppearanceOption {
   value: AppAppearance;
   label: string;
@@ -13,7 +11,6 @@ export interface AppThemeAppearanceConfig {
   algorithm?: ThemeConfig['algorithm'];
   token?: ThemeConfig['token'];
   components?: ThemeConfig['components'];
-  appVars?: Partial<AppCssVars>;
 }
 
 export interface AppThemePreset<Name extends string = string> {
@@ -29,7 +26,6 @@ export interface AppThemeDefinition<Name extends string = string> {
   label: string;
   description: string;
   antd: ThemeConfig;
-  cssVars: AppCssVars;
 }
 
 export type AppThemeRegistry<Name extends string = string> = Record<

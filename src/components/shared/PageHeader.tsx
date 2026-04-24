@@ -1,4 +1,4 @@
-import { Space, Typography } from 'antd';
+import { Flex, Space, Typography } from 'antd';
 import type { ReactNode } from 'react';
 
 interface PageHeaderProps {
@@ -10,12 +10,12 @@ interface PageHeaderProps {
 export function PageHeader({ title, description, extra }: PageHeaderProps) {
   return (
     <div className="page-header">
-      <div>
-        <Typography.Title level={1} className="page-title">
+      <Flex vertical gap={4}>
+        <Typography.Title level={1}>
           {title}
         </Typography.Title>
-        <p className="page-description">{description}</p>
-      </div>
+        <Typography.Paragraph type="secondary">{description}</Typography.Paragraph>
+      </Flex>
       {extra && <Space wrap>{extra}</Space>}
     </div>
   );

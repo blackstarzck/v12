@@ -6,6 +6,8 @@ AI.
 ## Theme Token Policy
 
 Use Ant Design theme tokens through `ConfigProvider` before custom CSS.
+Treat JSX `style={{...}}` as custom CSS as well. Moving visual rules from a
+stylesheet into a component does not make them part of the Ant Design system.
 
 Preferred path:
 
@@ -20,6 +22,7 @@ Avoid:
 - Scattered border radii.
 - Scattered shadow values.
 - Recreating AntD component states in CSS.
+- Recreating AntD component states or surfaces in visual inline styles.
 
 ## Color
 
@@ -114,4 +117,3 @@ If dark mode is added:
 - Focus states must remain visible.
 - Dialog and drawer close behavior must be predictable.
 - Timed exam controls must remain reachable by keyboard.
-

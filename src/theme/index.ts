@@ -9,7 +9,6 @@ export {
 export type {
   AppAppearance,
   AppAppearanceOption,
-  AppCssVars,
   AppThemeAppearanceConfig,
   AppThemeDefinition,
   AppThemePreset,

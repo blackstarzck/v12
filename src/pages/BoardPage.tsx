@@ -1,9 +1,11 @@
-import { Card, Input, List, Space, Table, Tabs, Tag, Typography } from 'antd';
-import { Link } from 'react-router-dom';
+import { Button, Card, Input, List, Space, Table, Tabs, Tag, Typography } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '../components/shared/PageHeader';
 import { noticeItems } from '../data/mockData';
 
 export function BoardPage() {
+  const navigate = useNavigate();
+
   return (
     <>
       <PageHeader
@@ -31,7 +33,13 @@ export function BoardPage() {
                       {
                         title: '제목',
                         dataIndex: 'title',
-                        render: (value) => <Link className="notice-table-title" to="/board">{value}</Link>,
+                        render: (value) => (
+                          <Typography.Text strong>
+                            <Button type="link" onClick={() => navigate('/board')}>
+                              {value}
+                            </Button>
+                          </Typography.Text>
+                        ),
                       },
                       { title: '작성자', dataIndex: 'author', responsive: ['md'] },
                       { title: '작성일', dataIndex: 'date', responsive: ['lg'] },

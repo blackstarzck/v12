@@ -10,6 +10,7 @@ import {
   Button,
   Drawer,
   Empty,
+  Flex,
   Input,
   List,
   Space,
@@ -40,12 +41,12 @@ export function AiTutorPanel() {
 
   return (
     <Drawer
+      rootClassName="ai-tutor-drawer"
       title="AI 튜터"
       placement="right"
       width={380}
       open={open}
       onClose={closePanel}
-      styles={{ body: { padding: 0 } }}
     >
       <Tabs
         activeKey={activeTab}
@@ -55,14 +56,14 @@ export function AiTutorPanel() {
             key: 'home',
             label: '홈',
             children: (
-              <div style={{ padding: 20 }}>
-                <Typography.Title level={4} style={{ marginTop: 0 }}>
+              <div className="ai-tutor-section">
+                <Typography.Title level={4}>
                   지금 화면에서 바로 물어보세요
                 </Typography.Title>
                 <Typography.Paragraph type="secondary">
                   단어 뜻, 문장 교정, 쓰기 구조처럼 학습 중 막힌 부분을 현재 흐름 안에서 확인할 수 있습니다.
                 </Typography.Paragraph>
-                <Space direction="vertical" style={{ width: '100%' }}>
+                <Flex vertical gap={8}>
                   {quickActions.map((action) => (
                     <Button
                       key={action.label}
@@ -73,7 +74,7 @@ export function AiTutorPanel() {
                       {action.label}
                     </Button>
                   ))}
-                </Space>
+                </Flex>
               </div>
             ),
           },
@@ -81,9 +82,9 @@ export function AiTutorPanel() {
             key: 'chat',
             label: '채팅',
             children: (
-              <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 120px)' }}>
+              <div className="ai-tutor-chat">
                 <List
-                  style={{ flex: 1, overflow: 'auto', padding: '0 20px' }}
+                  className="ai-tutor-messages"
                   dataSource={messages}
                   renderItem={(item) => (
                     <List.Item>
@@ -94,7 +95,7 @@ export function AiTutorPanel() {
                     </List.Item>
                   )}
                 />
-                <Space.Compact style={{ padding: 20 }}>
+                <Space.Compact className="ai-tutor-composer">
                   <Input
                     aria-label="AI 튜터에게 보낼 메시지"
                     value={draft}
@@ -117,7 +118,7 @@ export function AiTutorPanel() {
             key: 'notifications',
             label: '알림',
             children: (
-              <div style={{ padding: 20 }}>
+              <div className="ai-tutor-section">
                 <List
                   dataSource={[
                     '오늘 쓰기 53번 구조 연습을 1회 완료하면 주간 목표가 채워집니다.',

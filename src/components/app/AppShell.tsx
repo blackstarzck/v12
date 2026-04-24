@@ -20,12 +20,13 @@ import {
   Menu,
   Segmented,
   Space,
+  theme,
   Tooltip,
   Typography,
 } from 'antd';
 import type { MenuProps } from 'antd';
 import { useState, type ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAiTutorStore } from '../../stores/useAiTutorStore';
 import { useThemeStore } from '../../stores/useThemeStore';
 import { useUserStore } from '../../stores/useUserStore';
@@ -36,53 +37,22 @@ import { SettingsDrawer } from './SettingsDrawer';
 const { Header, Content, Sider } = Layout;
 
 const menuItems: NonNullable<MenuProps['items']> = [
-  { key: '/', icon: <HomeOutlined />, label: <Link to="/">홈</Link> },
-  {
-    key: '/practice/create',
-    icon: <ReadOutlined />,
-    label: <Link to="/practice/create">AI 문제 생성</Link>,
-  },
-  {
-    key: '/writing/setup',
-    icon: <EditOutlined />,
-    label: <Link to="/writing/setup">쓰기 집중 연습</Link>,
-  },
-  {
-    key: '/writing/feedback',
-    icon: <FileTextOutlined />,
-    label: <Link to="/writing/feedback">쓰기 보관함</Link>,
-  },
-  {
-    key: '/mock/results',
-    icon: <TrophyOutlined />,
-    label: <Link to="/mock/results">모의고사 결과</Link>,
-  },
-  {
-    key: '/library',
-    icon: <BookOutlined />,
-    label: <Link to="/library">내 서재</Link>,
-  },
-  {
-    key: '/vocabulary',
-    icon: <ReadOutlined />,
-    label: <Link to="/vocabulary">단어장</Link>,
-  },
-  {
-    key: '/board',
-    icon: <ProfileOutlined />,
-    label: <Link to="/board">게시판</Link>,
-  },
-  {
-    key: '/profile',
-    icon: <SettingOutlined />,
-    label: <Link to="/profile">프로필 설정</Link>,
-  },
+  { key: '/', icon: <HomeOutlined />, label: '홈' },
+  { key: '/practice/create', icon: <ReadOutlined />, label: 'AI 문제 생성' },
+  { key: '/writing/setup', icon: <EditOutlined />, label: '쓰기 집중 연습' },
+  { key: '/writing/feedback', icon: <FileTextOutlined />, label: '쓰기 보관함' },
+  { key: '/mock/results', icon: <TrophyOutlined />, label: '모의고사 결과' },
+  { key: '/library', icon: <BookOutlined />, label: '내 서재' },
+  { key: '/vocabulary', icon: <ReadOutlined />, label: '단어장' },
+  { key: '/board', icon: <ProfileOutlined />, label: '게시판' },
+  { key: '/profile', icon: <SettingOutlined />, label: '프로필 설정' },
 ];
 
 function selectedMenuKey(pathname: string) {
   if (pathname.startsWith('/writing/') && !pathname.startsWith('/writing/feedback')) {
     return '/writing/setup';
   }
+
   if (pathname.startsWith('/mock/')) {
     return '/mock/results';
   }
@@ -96,33 +66,39 @@ function selectedMenuKey(pathname: string) {
 }
 
 function SidebarContent() {
+  const navigate = useNavigate();
   const location = useLocation();
   const { name, plan } = useUserStore();
   const appearance = useThemeStore((state) => state.appearance);
+  const { token } = theme.useToken();
 
   return (
     <>
-      <Link className="app-logo" to="/" aria-label="TALKPIK AI 홈으로 이동">
+      <Link
+        className="app-logo"
+        to="/"
+        aria-label="TALKPIK AI 홈으로 이동"
+        style={{ color: token.colorPrimary }}
+      >
         <RobotOutlined aria-hidden />
-        <span>TALKPIK AI</span>
+        <span className="app-logo-text">TALKPIK AI</span>
       </Link>
       <Menu
+        className="app-sidebar-menu"
         mode="inline"
         theme={appearance === 'dark' ? 'dark' : 'light'}
         selectedKeys={[selectedMenuKey(location.pathname)]}
         items={menuItems}
-        style={{ borderInlineEnd: 0, padding: '8px 12px' }}
+        onClick={({ key }) => navigate(String(key))}
       />
-      <div style={{ margin: 'auto 16px 16px', paddingTop: 16 }}>
-        <Link to="/profile" aria-label="프로필 설정으로 이동">
+      <div className="app-sidebar-footer">
+        <Link className="app-profile-link" to="/profile" aria-label="프로필 설정으로 이동">
           <Space>
-            <Avatar style={{ backgroundColor: 'var(--app-brand)' }}>{name.slice(0, 1)}</Avatar>
+            <Avatar style={{ backgroundColor: token.colorPrimary }}>{name.slice(0, 1)}</Avatar>
             <span>
               <Typography.Text strong>{name} 님</Typography.Text>
               <br />
-              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                {plan}
-              </Typography.Text>
+              <Typography.Text type="secondary">{plan}</Typography.Text>
             </span>
           </Space>
         </Link>
@@ -142,22 +118,31 @@ export function AppShell({ children }: AppShellProps) {
   const { name, locale, setLocale } = useUserStore();
   const appearance = useThemeStore((state) => state.appearance);
   const { openPanel } = useAiTutorStore();
+  const { token } = theme.useToken();
   const isMobile = !screens.lg;
 
   return (
-    <Layout className="app-shell" hasSider={!isMobile}>
+    <Layout className="app-shell" hasSider={!isMobile} style={{ background: token.colorBgLayout }}>
       <a className="skip-link" href="#main-content">
         본문으로 바로가기
       </a>
       {!isMobile && (
-        <Sider width={256} className="app-sidebar" theme={appearance === 'dark' ? 'dark' : 'light'}>
-          <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
+        <Sider
+          width={256}
+          className="app-sidebar"
+          theme={appearance === 'dark' ? 'dark' : 'light'}
+          style={{ borderRight: `1px solid ${token.colorSplit}` }}
+        >
+          <div className="app-sidebar-body">
             <SidebarContent />
           </div>
         </Sider>
       )}
       <Layout>
-        <Header className="app-header">
+        <Header
+          className="app-header"
+          style={{ background: token.colorBgContainer, borderBottom: `1px solid ${token.colorSplit}` }}
+        >
           <Space size={12}>
             {isMobile && (
               <Button
@@ -169,9 +154,7 @@ export function AppShell({ children }: AppShellProps) {
             <div>
               <Typography.Text strong>{name} 님의 학습 공간</Typography.Text>
               <br />
-              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                오늘의 목표를 확인하고 바로 이어서 학습하세요.
-              </Typography.Text>
+              <Typography.Text type="secondary">오늘의 목표를 확인하고 바로 이어서 학습하세요.</Typography.Text>
             </div>
           </Space>
           <Space>

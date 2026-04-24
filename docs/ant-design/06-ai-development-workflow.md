@@ -65,7 +65,6 @@ src/theme/
   index.ts
   registry.ts
   create-theme.ts
-  app-vars.ts
   global/
   components/
   presets/
@@ -75,10 +74,11 @@ Rules:
 
 - `index.ts` is the public entry point.
 - `registry.ts` registers available named themes.
-- `presets/` contains theme-specific global and component values.
+- `presets/` contains optional theme-specific overrides. The default preset should
+  stay close to empty so the app uses stock Ant Design decisions first.
 - `global/` contains shared seed tokens and algorithm helpers.
-- `components/` contains shared component token rules.
-- `app-vars.ts` adapts resolved AntD tokens into app CSS variables when needed.
+- `components/` contains shared component token rules only when the project has a
+  documented reason to deviate from Ant Design defaults.
 
 This theme system should still centrally own:
 
@@ -86,8 +86,6 @@ This theme system should still centrally own:
 - `components`
 - optional algorithm choice
 - font family
-- brand color
-- border radius
 
 Do not spread theme decisions across unrelated components.
 See `08-theme-architecture.md` for the project-specific theme structure.
@@ -112,6 +110,7 @@ Avoid:
 - custom modals
 - custom table behavior
 - arbitrary color/radius/shadow values
+- visual inline styles that redraw AntD component surfaces or interaction states
 
 ## Verification Rule
 
