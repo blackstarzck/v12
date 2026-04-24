@@ -1,0 +1,337 @@
+@font-face {
+  font-family: 'Pretendard';
+  src: url('../../fonts/pretendard/PretendardVariable.woff2') format('woff2');
+  font-weight: 45 920;
+  font-display: swap;
+}
+
+:root {
+  --app-color-scheme: light;
+  --app-bg: #f6f8f7;
+  --app-surface: #ffffff;
+  --app-surface-muted: #fbfdfc;
+  --app-header-bg: #ffffff;
+  --app-sidebar-bg: #ffffff;
+  --app-border: rgba(15, 23, 42, 0.08);
+  --app-border-strong: #dfe7e4;
+  --app-answer-border: #d9e2df;
+  --app-text: #172026;
+  --app-text-secondary: #667085;
+  --app-text-muted: #4b5563;
+  --app-brand: #0f766e;
+  --app-hover-bg: #f7fbfa;
+
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  color-scheme: var(--app-color-scheme);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100dvh;
+  font-family: Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--app-bg);
+  color: var(--app-text);
+  word-break: keep-all;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 2000;
+  transform: translateY(-160%);
+  transition: transform 120ms ease;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+.app-shell {
+  min-height: 100dvh;
+  background: var(--app-bg);
+}
+
+.app-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  border-right: 1px solid var(--app-border);
+  background: var(--app-sidebar-bg);
+  overflow: auto;
+}
+
+.app-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 64px;
+  padding: 0 20px;
+  font-weight: 800;
+  color: var(--app-brand);
+  letter-spacing: 0;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 64px;
+  padding: 0 24px;
+  line-height: 1.4;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-header-bg);
+}
+
+.app-content {
+  width: min(1440px, 100%);
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.25;
+  font-weight: 800;
+  color: var(--app-text);
+}
+
+.page-description {
+  margin: 8px 0 0;
+  color: var(--app-text-secondary);
+  line-height: 1.6;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.learning-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.metric-panel {
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 8px;
+  background: var(--app-surface-muted);
+}
+
+.inline-surface {
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 8px;
+  background: var(--app-surface-muted);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 16px;
+  align-items: start;
+}
+
+.solve-grid,
+.writing-grid,
+.detail-grid,
+.exam-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 16px;
+  align-items: start;
+}
+
+.answer-option {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--app-answer-border);
+  border-radius: 8px;
+  background: var(--app-surface);
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease,
+    transform 120ms ease;
+}
+
+.answer-option:hover {
+  border-color: var(--app-brand);
+  background: var(--app-hover-bg);
+  transform: translateY(-1px);
+}
+
+.answer-option + .answer-option {
+  margin-top: 10px;
+}
+
+.writing-editor {
+  min-height: 360px;
+  resize: vertical;
+}
+
+.ai-float-button {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 50;
+}
+
+.status-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.compact-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--app-text-muted);
+  line-height: 1.7;
+}
+
+.notice-table-title {
+  color: var(--app-text);
+  font-weight: 700;
+}
+
+.settings-drawer-content,
+.settings-section,
+.settings-option-list {
+  width: 100%;
+}
+
+.settings-title {
+  margin: 0;
+}
+
+.settings-option-list {
+  display: grid;
+  gap: 10px;
+}
+
+.settings-option {
+  width: 100%;
+  min-height: 72px;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 8px;
+  background: var(--app-surface-muted);
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease;
+}
+
+.settings-option:hover,
+.settings-option:focus-within {
+  border-color: var(--app-brand);
+  background: var(--app-hover-bg);
+}
+
+.settings-option-icon {
+  margin-top: 3px;
+  color: var(--app-brand);
+}
+
+.settings-option-description {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .app-header {
+    padding: 0 16px;
+  }
+
+  .app-content {
+    padding: 16px;
+  }
+
+  .page-header,
+  .dashboard-grid,
+  .form-grid,
+  .solve-grid,
+  .writing-grid,
+  .detail-grid,
+  .exam-grid {
+    display: block;
+  }
+
+  .page-header > * + *,
+  .dashboard-grid > * + *,
+  .form-grid > * + *,
+  .solve-grid > * + *,
+  .writing-grid > * + *,
+  .detail-grid > * + *,
+  .exam-grid > * + * {
+    margin-top: 16px;
+  }
+
+  .learning-action-grid,
+  .metric-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-title {
+    font-size: 24px;
+  }
+
+  .ai-float-button {
+    right: 16px;
+    bottom: 16px;
+  }
+}
