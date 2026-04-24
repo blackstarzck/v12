@@ -2,6 +2,8 @@
 
 URL: `/board.html`
 
+현재 React route: `/board`
+
 ## 화면 목적
 
 공지사항과 이벤트를 확인하는 화면입니다.

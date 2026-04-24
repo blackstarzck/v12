@@ -96,6 +96,18 @@ Expected MCP server:
 }
 ```
 
+## Local Harness
+
+A requirement-gated Python harness is installed in this repository root.
+
+Use it when you need durable session logging, required-document
+acknowledgement, audited tool flow, or a pre-final audit.
+
+If you change `generated_harness/`, also update `docs/harness/execution-flow.md`
+and run the harness tests.
+
+For the actual day-to-day operator flow, read `docs/harness/quickstart.md`.
+
 ## UI Implementation Policy
 
 - Use Ant Design components before custom UI.

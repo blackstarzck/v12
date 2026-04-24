@@ -1,0 +1,20 @@
+{
+  "name": "harness-library",
+  "interface": {
+    "displayName": "Harness Library"
+  },
+  "plugins": [
+    {
+      "name": "requirement-gated-python-harness",
+      "source": {
+        "source": "local",
+        "path": "./plugins/requirement-gated-python-harness"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Coding"
+    }
+  ]
+}

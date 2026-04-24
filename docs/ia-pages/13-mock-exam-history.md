@@ -2,6 +2,8 @@
 
 URL: `/mock_exam_history.html`
 
+현재 React route 상태: 전용 route 없음. 레거시 관찰 문서로만 유지.
+
 ## 화면 목적
 
 모든 모의고사 응시 기록을 표로 확인하고 필터링하는 화면입니다.

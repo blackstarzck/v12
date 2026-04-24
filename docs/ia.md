@@ -1,5 +1,15 @@
 # TALKPIK AI 페이지별 IA 문서 목차
 
+> Status note (2026-04-24)
+>
+> The IA pages in `docs/ia-pages/` describe the observed structure of a legacy
+> deployed HTML site. They are still useful for product intent and page
+> relationships, but their `URL:` fields are not always the current React route
+> paths in this repository.
+>
+> Use `docs/sitemap.md` for the route mapping layer, and use `src/App.tsx` as
+> the final implementation reference for live routes.
+
 확인 기준: 2026-04-22에 배포 사이트 `https://topik-ai-nqgl.vercel.app/home.html`를 Playwright MCP로 직접 탐색한 화면과 클릭 결과입니다.
 
 요청에 맞게 IA 문서를 페이지 단위 파일로 분리했습니다. IA는 Information Architecture의 줄임말로, 사용자가 화면에서 무엇을 보고 어디로 이동할 수 있는지를 정리한 화면 구조 문서입니다.

@@ -1,0 +1,61 @@
+{
+  "documents": [
+    {
+      "doc_id": "project-agent-rules",
+      "path": "AGENTS.md",
+      "summary": "Project-wide operating rules for Ant Design-first UI development, theme gates, component gates, and review output format.",
+      "priority": 100,
+      "keywords": [
+        "ui",
+        "page",
+        "component",
+        "theme",
+        "token",
+        "antd",
+        "layout",
+        "style",
+        "grid",
+        "menu",
+        "table",
+        "list",
+        "card",
+        "form",
+        "drawer",
+        "modal"
+      ],
+      "intent_patterns": [
+        "make",
+        "create",
+        "add",
+        "implement",
+        "modify",
+        "fix",
+        "refactor",
+        "update",
+        "review",
+        "build"
+      ],
+      "path_globs": [
+        "src/**",
+        "AGENTS.md",
+        "docs/ant-design/**"
+      ],
+      "content_patterns": [],
+      "labels": [
+        "ui",
+        "antd"
+      ],
+      "section_hints": [
+        "Required Reading Before UI Work",
+        "Theme Reading Gate",
+        "AntD Component Gate",
+        "UI Implementation Policy",
+        "Completion Policy"
+      ],
+      "toc": {
+        "max_chunk_lines": 120,
+        "max_heading_depth": 3
+      }
+    }
+  ]
+}

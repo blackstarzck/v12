@@ -1,8 +1,39 @@
 # TALKPIK AI 사이트맵 및 페이지 연결도
 
+> Status note (2026-04-24)
+>
+> The Mermaid map below documents the observed route names from a legacy HTML
+> deployment. Keep it as product-history context.
+>
+> For current implementation work, use the React route map below first, then
+> confirm against `src/App.tsx`.
+
 확인 기준: 2026-04-22에 배포 사이트를 Playwright MCP로 직접 탐색한 화면과 클릭 결과입니다.
 
 이 문서는 사이트맵, 페이지 뎁스, 주요 연결 상태를 Mermaid 코드로 볼 수 있게 정리한 문서입니다. Mermaid는 문서 안에서 화면 구조를 다이어그램으로 표현하는 문법입니다.
+
+## Current React Route Map
+
+| Legacy observed URL | Current React route | Notes |
+| --- | --- | --- |
+| `/home.html` | `/` | Home V1 |
+| `/home_v2.html` | `/home-v2` | Home V2 |
+| `/practice_create.html` | `/practice/create` | Practice generation |
+| `/practice_solve.html` | `/practice/solve` | Practice solve |
+| `/writing_practice_create.html` | `/writing/setup` | Writing setup |
+| `/writing_51.html` | `/writing/51` | Writing task 51 |
+| `/writing_53.html` | `/writing/53` | Writing task 53 |
+| `/my_library.html` | `/library` | Library |
+| `/my_vocabulary.html` | `/vocabulary` | Vocabulary |
+| `/writing_feedback_list.html` | `/writing/feedback` | Feedback list |
+| `/writing_feedback_detail_*.html` | `/writing/feedback/:id` | Dynamic feedback detail |
+| `/mock_exam_results.html` | `/mock/results` | Mock results / overview |
+| `/mock_test_exam.html` | `/mock/exam` | Live mock exam |
+| `/board.html` | `/board` | Board |
+| `/profile_settings.html` | `/profile` | Profile settings |
+| `/mock_exam_history.html` | no dedicated route | Legacy-only page note |
+| `/mock_test_setup.html` | no dedicated route | Legacy-only page note |
+| `/notice_detail.html` | no dedicated route | Legacy-only page note |
 
 ## 뎁스 기준
 

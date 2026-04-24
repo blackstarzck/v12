@@ -2,6 +2,8 @@
 
 URL: `/mock_exam_results.html`
 
+현재 React route: `/mock/results`
+
 ## 화면 목적
 
 최근 모의고사 성적과 영역별 실력, 성적 변화 추이, 응시 기록을 확인하는 화면입니다.

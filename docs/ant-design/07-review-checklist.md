@@ -7,6 +7,7 @@ Use this checklist before calling UI work complete.
 - [ ] AntD components are used for common UI controls.
 - [ ] Custom controls are justified by product need.
 - [ ] Component props were checked with MCP or official docs when uncertain.
+- [ ] Deprecated AntD components are not introduced in new UI work.
 - [ ] Static APIs such as `message`, `Modal`, and `notification` are used with
       awareness of `ConfigProvider` context limitations.
 
@@ -63,4 +64,3 @@ Use this checklist before calling UI work complete.
 
 If any required item fails, do not call the UI complete. Fix the issue or record
 the remaining risk clearly.
-

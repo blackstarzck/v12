@@ -2,6 +2,8 @@
 
 URL: `/writing_53.html`
 
+현재 React route: `/writing/53`
+
 ## 화면 목적
 
 TOPIK II 쓰기 53번 도표/그래프 분석 답안을 작성하는 화면입니다.

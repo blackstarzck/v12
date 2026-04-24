@@ -2,6 +2,8 @@
 
 URL: `/profile_settings.html`
 
+현재 React route: `/profile`
+
 ## 화면 목적
 
 사용자 정보, 목표, 배지, 결제, 보안 설정을 관리하는 화면입니다.

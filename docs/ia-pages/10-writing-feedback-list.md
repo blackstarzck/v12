@@ -2,6 +2,8 @@
 
 URL: `/writing_feedback_list.html`
 
+현재 React route: `/writing/feedback`
+
 ## 화면 목적
 
 작성한 쓰기 답안의 AI 피드백과 임시 저장 답안을 모아보는 화면입니다.

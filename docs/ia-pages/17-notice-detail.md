@@ -2,6 +2,8 @@
 
 URL 예: `/notice_detail.html?id=n100`
 
+현재 React route 상태: 전용 route 없음. 레거시 관찰 문서로만 유지.
+
 ## 화면 목적
 
 공지사항의 상세 내용을 읽는 화면입니다.

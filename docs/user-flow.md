@@ -1,5 +1,15 @@
 # TALKPIK AI 유저 플로우 문서
 
+> Status note (2026-04-24)
+>
+> This file is a user-flow record based on observed behavior from the legacy
+> deployed site.
+>
+> Use it for product flow intent and journey context.
+>
+> For current React routes, use `docs/sitemap.md` and `src/App.tsx`.
+> For current UI implementation rules, use `docs/spec.md` and `docs/ant-design/`.
+
 확인 기준: 2026-04-22에 배포 사이트를 Playwright MCP로 직접 탐색한 사용자 흐름입니다.
 
 유저 플로우는 사용자가 목표를 이루기 위해 어떤 화면을 어떤 순서로 지나가는지 정리한 문서입니다.
@@ -218,3 +228,4 @@
 - 내 서재의 문제 바구니는 드래그 동작이 핵심인데, 완전한 드래그 후 풀이 시작 흐름은 추가 확인이 필요합니다.
 - AI 튜터가 열려 있을 때 시험 화면의 OMR 버튼을 가리는 경우가 있었습니다.
 - 언어 전환 후에도 일부 학습 문장과 피드백 문장은 한국어로 남았습니다.
+

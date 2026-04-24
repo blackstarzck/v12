@@ -2,6 +2,8 @@
 
 URL: `/writing_51.html`
 
+현재 React route: `/writing/51`
+
 ## 화면 목적
 
 TOPIK II 쓰기 51번 실용문 빈칸 문제를 작성하는 화면입니다.

@@ -2,6 +2,8 @@
 
 URL 예: `/mock_test_exam.html?...`
 
+현재 React route: `/mock/exam`
+
 ## 화면 목적
 
 제한 시간 안에 실제 시험처럼 문제를 푸는 화면입니다.

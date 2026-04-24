@@ -1,0 +1,33 @@
+name: Harness CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  requirement-gated-python-harness:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run harness tests
+        shell: pwsh
+        run: |
+          $env:PYTHONPATH = "${{ github.workspace }}"
+          python tests\test_harness_runtime.py
+
+      - name: Run required-document eval
+        shell: pwsh
+        run: |
+          python scripts\run_doc_eval.py --json
+
+      - name: Check repository hygiene
+        shell: pwsh
+        run: |
+          python scripts\check_repo_hygiene.py --json

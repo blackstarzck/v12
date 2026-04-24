@@ -15,7 +15,8 @@ For TALKPIK AI:
 - Keep writing, solving, OMR, and feedback actions close to their content.
 - Do not make the learner leave the current workflow for secondary help.
 - Use familiar Ant Design controls: `Form`, `Select`, `Radio`, `Tabs`,
-  `Progress`, `Steps`, `Alert`, `Drawer`, `Modal`, `Table`, and `List`.
+  `Progress`, `Steps`, `Alert`, `Drawer`, `Modal`, `Table`, `Card`, and
+  `Descriptions`.
 - Avoid decorative layouts that make the app feel like a marketing page.
 
 Implementation rule:
@@ -88,4 +89,3 @@ Before adding or changing UI, answer these questions:
 - Growing: Does it help the learner improve or return later?
 
 If any answer is "no", revise before coding.
-

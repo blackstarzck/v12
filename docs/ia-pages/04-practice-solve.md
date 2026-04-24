@@ -2,6 +2,8 @@
 
 URL 예: `/practice_solve.html?...`
 
+현재 React route: `/practice/solve`
+
 ## 화면 목적
 
 생성된 읽기 또는 듣기 문제를 실제로 풀고 정답을 확인하는 화면입니다.

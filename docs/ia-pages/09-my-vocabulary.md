@@ -2,6 +2,8 @@
 
 URL: `/my_vocabulary.html`
 
+현재 React route: `/vocabulary`
+
 ## 화면 목적
 
 저장한 단어를 카드 또는 목록 형태로 복습하는 화면입니다.

@@ -2,6 +2,8 @@
 
 URL: `/writing_practice_create.html`
 
+현재 React route: `/writing/setup`
+
 ## 화면 목적
 
 쓰기 51번부터 54번까지의 유형과 주제를 골라 쓰기 연습을 시작하는 화면입니다.

@@ -1,0 +1,70 @@
+{
+  "cases": [
+    {
+      "name": "page_ui_change",
+      "user_input": "Update the learning dashboard page and verify loading, empty, and error states.",
+      "target_paths": [
+        "src/pages/HomePage.tsx"
+      ],
+      "expected_doc_ids": [
+        "project-agent-rules",
+        "project-spec",
+        "antd-patterns",
+        "antd-workflow",
+        "theme-architecture",
+        "review-checklist"
+      ]
+    },
+    {
+      "name": "theme_change",
+      "user_input": "Refactor the theme token flow and keep the default preset close to stock Ant Design.",
+      "target_paths": [
+        "src/theme/presets/default.ts"
+      ],
+      "expected_doc_ids": [
+        "project-agent-rules",
+        "antd-workflow",
+        "theme-architecture",
+        "review-checklist"
+      ]
+    },
+    {
+      "name": "component_customization_change",
+      "user_input": "Fix the app shell menu layout and avoid custom inline styling if AntD already solves it.",
+      "target_paths": [
+        "src/components/app/AppShell.tsx"
+      ],
+      "expected_doc_ids": [
+        "project-agent-rules",
+        "project-spec",
+        "antd-patterns",
+        "antd-workflow",
+        "theme-architecture",
+        "review-checklist"
+      ]
+    },
+    {
+      "name": "korean_ui_change",
+      "user_input": "모의고사 결과 화면을 수정하고 안트디자인 컴포넌트와 테마 규칙을 먼저 확인해줘.",
+      "target_paths": [
+        "src/pages/MockExamPage.tsx"
+      ],
+      "expected_doc_ids": [
+        "project-agent-rules",
+        "project-spec",
+        "antd-patterns",
+        "antd-workflow",
+        "theme-architecture",
+        "review-checklist"
+      ]
+    },
+    {
+      "name": "non_ui_doc_change",
+      "user_input": "Write a short release note about the latest harness installation.",
+      "target_paths": [
+        "docs/harness/roadmap.md"
+      ],
+      "expected_doc_ids": []
+    }
+  ]
+}

@@ -1,0 +1,397 @@
+{
+  "documents": [
+    {
+      "doc_id": "project-agent-rules",
+      "path": "AGENTS.md",
+      "summary": "Project-wide operating rules for Ant Design-first UI development, theme gates, component gates, and review output format.",
+      "priority": 100,
+      "keywords": [
+        "ui",
+        "page",
+        "component",
+        "theme",
+        "token",
+        "antd",
+        "layout",
+        "style",
+        "grid",
+        "menu",
+        "table",
+        "list",
+        "card",
+        "form",
+        "drawer",
+        "modal",
+        "탐색",
+        "화면",
+        "컴포넌트",
+        "테마",
+        "스타일"
+      ],
+      "intent_patterns": [
+        "make",
+        "create",
+        "add",
+        "implement",
+        "modify",
+        "fix",
+        "refactor",
+        "update",
+        "review",
+        "build",
+        "만들",
+        "추가",
+        "구현",
+        "수정",
+        "리팩터",
+        "검토"
+      ],
+      "path_globs": [
+        "src/**",
+        "AGENTS.md",
+        "docs/ant-design/**"
+      ],
+      "content_patterns": [],
+      "labels": [
+        "ui",
+        "antd"
+      ],
+      "section_hints": [
+        "Required Reading Before UI Work",
+        "Theme Reading Gate",
+        "AntD Component Gate",
+        "UI Implementation Policy",
+        "Completion Policy"
+      ],
+      "toc": {
+        "max_chunk_lines": 120,
+        "max_heading_depth": 3
+      }
+    },
+    {
+      "doc_id": "project-spec",
+      "path": "docs/spec.md",
+      "summary": "Frontend implementation expectations for the TALKPIK AI product surface.",
+      "priority": 85,
+      "keywords": [
+        "dashboard",
+        "workspace",
+        "mock exam",
+        "writing",
+        "feedback",
+        "vocabulary",
+        "board",
+        "screen",
+        "page",
+        "대시보드",
+        "학습",
+        "모의고사",
+        "쓰기",
+        "피드백",
+        "단어장",
+        "게시판"
+      ],
+      "intent_patterns": [
+        "make",
+        "create",
+        "add",
+        "implement",
+        "modify",
+        "fix",
+        "refactor",
+        "update",
+        "build",
+        "만들",
+        "추가",
+        "구현",
+        "수정",
+        "리팩터"
+      ],
+      "path_globs": [
+        "src/pages/**",
+        "src/components/**"
+      ],
+      "content_patterns": [
+        "HomePage",
+        "MockExam",
+        "Writing",
+        "Vocabulary",
+        "Board",
+        "Feedback"
+      ],
+      "labels": [
+        "product",
+        "frontend"
+      ],
+      "section_hints": [
+        "frontend implementation expectations"
+      ],
+      "toc": {
+        "max_chunk_lines": 120,
+        "max_heading_depth": 3
+      }
+    },
+    {
+      "doc_id": "antd-patterns",
+      "path": "docs/ant-design/03-patterns-and-components.md",
+      "summary": "Preferred Ant Design components and interaction patterns for navigation, forms, feedback, and data display.",
+      "priority": 95,
+      "keywords": [
+        "antd",
+        "component",
+        "pattern",
+        "navigation",
+        "feedback",
+        "form",
+        "table",
+        "list",
+        "card",
+        "menu",
+        "drawer",
+        "modal",
+        "tabs",
+        "steps",
+        "loading",
+        "empty",
+        "error",
+        "success",
+        "컴포넌트",
+        "패턴",
+        "폼",
+        "표",
+        "목록",
+        "카드",
+        "메뉴"
+      ],
+      "intent_patterns": [
+        "make",
+        "create",
+        "add",
+        "implement",
+        "modify",
+        "fix",
+        "refactor",
+        "update",
+        "review",
+        "build",
+        "만들",
+        "추가",
+        "구현",
+        "수정",
+        "리팩터",
+        "검토"
+      ],
+      "path_globs": [
+        "src/pages/**",
+        "src/components/**",
+        "src/main.tsx"
+      ],
+      "content_patterns": [],
+      "labels": [
+        "ui",
+        "component"
+      ],
+      "section_hints": [
+        "Navigation",
+        "Feedback",
+        "Data Entry",
+        "Data Display",
+        "Buttons"
+      ],
+      "toc": {
+        "max_chunk_lines": 120,
+        "max_heading_depth": 3
+      }
+    },
+    {
+      "doc_id": "antd-workflow",
+      "path": "docs/ant-design/06-ai-development-workflow.md",
+      "summary": "The step-by-step AI workflow for choosing AntD components, avoiding custom styling, and validating UI work.",
+      "priority": 90,
+      "keywords": [
+        "workflow",
+        "verify",
+        "review",
+        "complete",
+        "desktop",
+        "mobile",
+        "inline style",
+        "custom css",
+        "검증",
+        "완료",
+        "인라인 스타일",
+        "커스텀 css"
+      ],
+      "intent_patterns": [
+        "make",
+        "create",
+        "add",
+        "implement",
+        "modify",
+        "fix",
+        "refactor",
+        "update",
+        "review",
+        "verify",
+        "만들",
+        "추가",
+        "구현",
+        "수정",
+        "검토",
+        "검증"
+      ],
+      "path_globs": [
+        "src/**",
+        "docs/ant-design/**"
+      ],
+      "content_patterns": [
+        "style=\\{\\{",
+        "grid-template",
+        "background",
+        "borderRadius",
+        "theme",
+        "token",
+        "from ['\"]antd['\"]"
+      ],
+      "labels": [
+        "ui",
+        "workflow"
+      ],
+      "section_hints": [
+        "step-by-step AI coding workflow",
+        "avoid visual inline styles",
+        "verify desktop and mobile"
+      ],
+      "toc": {
+        "max_chunk_lines": 120,
+        "max_heading_depth": 3
+      }
+    },
+    {
+      "doc_id": "theme-architecture",
+      "path": "docs/ant-design/08-theme-architecture.md",
+      "summary": "Theme management rules for stock AntD light-dark behavior, token placement, and theme override boundaries.",
+      "priority": 98,
+      "keywords": [
+        "theme",
+        "token",
+        "dark",
+        "light",
+        "color",
+        "font",
+        "radius",
+        "background",
+        "theme editor",
+        "css variable",
+        "테마",
+        "토큰",
+        "다크모드",
+        "라이트모드",
+        "색상",
+        "폰트"
+      ],
+      "intent_patterns": [
+        "make",
+        "create",
+        "add",
+        "implement",
+        "modify",
+        "fix",
+        "refactor",
+        "update",
+        "customize",
+        "만들",
+        "추가",
+        "구현",
+        "수정",
+        "리팩터",
+        "커스터마이즈"
+      ],
+      "path_globs": [
+        "src/theme/**",
+        "src/styles/**",
+        "src/components/**",
+        "src/pages/**",
+        "src/main.tsx"
+      ],
+      "content_patterns": [
+        "ConfigProvider",
+        "defaultAlgorithm",
+        "darkAlgorithm",
+        "theme",
+        "token",
+        "color",
+        "background",
+        "border",
+        "radius",
+        "style=\\{\\{"
+      ],
+      "labels": [
+        "theme",
+        "ui"
+      ],
+      "section_hints": [
+        "Reading Gate",
+        "Core Principle",
+        "Global vs Component Rules",
+        "Rules For Future Edits"
+      ],
+      "toc": {
+        "max_chunk_lines": 120,
+        "max_heading_depth": 3
+      }
+    },
+    {
+      "doc_id": "review-checklist",
+      "path": "docs/ant-design/07-review-checklist.md",
+      "summary": "Final review checklist for verifying AntD-first UI work and reporting remaining risks.",
+      "priority": 80,
+      "keywords": [
+        "review",
+        "checklist",
+        "verify",
+        "finalize",
+        "complete",
+        "risk",
+        "works",
+        "검토",
+        "체크리스트",
+        "검증",
+        "위험"
+      ],
+      "intent_patterns": [
+        "review",
+        "verify",
+        "complete",
+        "finalize",
+        "fix",
+        "검토",
+        "검증",
+        "완료",
+        "수정"
+      ],
+      "path_globs": [
+        "src/**"
+      ],
+      "content_patterns": [
+        "from ['\"]antd['\"]",
+        "style=\\{\\{",
+        "theme",
+        "token"
+      ],
+      "labels": [
+        "review",
+        "ui"
+      ],
+      "section_hints": [
+        "What works",
+        "What does not work yet",
+        "Risk remains"
+      ],
+      "toc": {
+        "max_chunk_lines": 120,
+        "max_heading_depth": 3
+      }
+    }
+  ]
+}

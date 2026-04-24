@@ -2,6 +2,8 @@
 
 URL: `/my_library.html`
 
+현재 React route: `/library`
+
 ## 화면 목적
 
 저장한 문제를 관리하고, 폴더나 문제를 학습 바구니에 담아 복습하는 화면입니다.

@@ -11,7 +11,7 @@ stylesheet into a component does not make them part of the Ant Design system.
 
 Preferred path:
 
-1. Set global brand and UI tokens in one theme file.
+1. Keep one public theme entry point, with internal theme files split by responsibility when needed.
 2. Use AntD component props and variants.
 3. Use component tokens when a specific AntD component needs adjustment.
 4. Use custom CSS only for layout glue, app shell, and domain-specific surfaces.

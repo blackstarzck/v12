@@ -38,7 +38,7 @@ Recommended components:
 - `Statistic`
 - `Progress`
 - `Card`
-- `List`
+- `Table` or `Card` plus `Flex`
 - `Button`
 - `Alert`
 - `Tabs` only if there are peer dashboard views.
@@ -121,7 +121,7 @@ Use Ant Design list-page thinking.
 Recommended components:
 
 - `Tabs`
-- `Table` or `List`
+- `Table` or `Card` plus `Flex`
 - `Tag`
 - `Input.Search`
 - `Select`
@@ -178,7 +178,7 @@ Rules:
 
 Recommended components:
 
-- `List`
+- `Table` or `Card` plus `Flex`
 - `Card`
 - `Tag`
 - `Input.Search`
@@ -197,7 +197,7 @@ Rules:
 Recommended components:
 
 - `Tabs`
-- `Table` or `List`
+- `Table` or `Card` plus `Flex`
 - `Tag`
 - `Typography`
 - `Breadcrumb`
@@ -222,4 +222,3 @@ Rules:
 
 - Separate profile, learning goal, language, subscription, and security areas.
 - Destructive account actions require confirmation.
-

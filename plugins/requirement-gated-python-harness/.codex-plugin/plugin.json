@@ -1,0 +1,36 @@
+{
+  "name": "requirement-gated-python-harness",
+  "version": "0.1.0",
+  "description": "Codex guidance for the requirement-gated Python harness in this library.",
+  "author": {
+    "name": "Local Harness Library"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "codex",
+    "harness",
+    "session-replay",
+    "tool-gating",
+    "sandbox"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Requirement-Gated Python Harness",
+    "shortDescription": "Use the local harness with required-document gates and audited tool flow.",
+    "longDescription": "Provides Codex-facing guidance for the requirement-gated Python harness stored in this repository. The plugin points agents to the durable session log, required-document acknowledgement gate, audited tool and sandbox adapters, flow checker, pre-final audit, and repeated-workflow skill export commands.",
+    "developerName": "Local Harness Library",
+    "category": "Coding",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Run a harness turn with required docs",
+      "Check a harness session flow",
+      "Audit the harness before final output"
+    ],
+    "brandColor": "#2563EB",
+    "screenshots": []
+  }
+}

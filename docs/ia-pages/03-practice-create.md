@@ -2,6 +2,8 @@
 
 URL: `/practice_create.html`
 
+현재 React route: `/practice/create`
+
 ## 화면 목적
 
 읽기 또는 듣기 문제를 사용자가 조건에 맞게 생성하도록 돕는 설정 화면입니다.

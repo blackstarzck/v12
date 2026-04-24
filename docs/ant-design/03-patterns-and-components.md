@@ -70,7 +70,6 @@ Rules:
 Preferred components:
 
 - `Table`: sortable, comparable structured data.
-- `List`: simple records or feeds.
 - `Card`: bounded summary or repeated item.
 - `Descriptions`: read-only detail metadata.
 - `Statistic`: important metrics.
@@ -79,10 +78,14 @@ Preferred components:
 - `Collapse`: optional detail sections.
 - `Timeline`: chronological feedback or exam history.
 
+`List` is deprecated in current Ant Design guidance. Do not choose it first for
+new UI in this project.
+
 Rules:
 
 - Use `Table` for records users compare or sort.
-- Use `List` for simpler scans.
+- Use `Card` plus `Flex` or `Space` for simpler scans, feed summaries, or
+  bounded repeated items.
 - Use `Descriptions` for stable metadata in detail pages.
 - Use `Statistic` only for numbers that matter.
 - Avoid overusing cards for every section.
@@ -144,4 +147,3 @@ Recommended labels:
 - `Submitted`
 - `Feedback ready`
 - `Needs review`
-

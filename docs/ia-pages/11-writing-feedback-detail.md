@@ -8,6 +8,8 @@ URL 예:
 - `/writing_feedback_detail_54.html`
 - `/writing_feedback_detail_54.html?type=retake`
 
+현재 React route: `/writing/feedback/:id`
+
 ## 화면 목적
 
 제출한 쓰기 답안의 점수, AI 총평, 단계별 수정 과정, 상세 첨삭을 확인하는 화면입니다.
