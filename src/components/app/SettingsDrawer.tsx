@@ -1,7 +1,7 @@
 import { MoonOutlined, SettingOutlined, SunOutlined } from '@ant-design/icons';
 import { Drawer, Segmented, Space, Typography } from 'antd';
 import { useThemeStore } from '../../stores/useThemeStore';
-import { appearanceOptions, type AppAppearance } from '../../theme/themes';
+import { appearanceOptions, type AppAppearance } from '../../theme';
 
 interface SettingsDrawerProps {
   open: boolean;

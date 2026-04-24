@@ -23,6 +23,7 @@ Then read the Ant Design AI development rules:
 7. `docs/ant-design/05-visual-motion-illustration.md`
 8. `docs/ant-design/06-ai-development-workflow.md`
 9. `docs/ant-design/07-review-checklist.md`
+10. `docs/ant-design/08-theme-architecture.md`
 
 ## Official Ant Design Sources
 

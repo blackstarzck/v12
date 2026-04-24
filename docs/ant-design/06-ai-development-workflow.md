@@ -54,13 +54,33 @@ If MCP is unavailable:
 
 ## Theme Implementation Rule
 
-When app code exists, create a single theme source such as:
+When app code exists, keep a single **public theme entry point** for the app,
+but it is acceptable and preferred to split internal theme files by
+responsibility.
+
+Current expected structure:
 
 ```text
-src/theme/antdTheme.ts
+src/theme/
+  index.ts
+  registry.ts
+  create-theme.ts
+  app-vars.ts
+  global/
+  components/
+  presets/
 ```
 
-It should own:
+Rules:
+
+- `index.ts` is the public entry point.
+- `registry.ts` registers available named themes.
+- `presets/` contains theme-specific global and component values.
+- `global/` contains shared seed tokens and algorithm helpers.
+- `components/` contains shared component token rules.
+- `app-vars.ts` adapts resolved AntD tokens into app CSS variables when needed.
+
+This theme system should still centrally own:
 
 - `token`
 - `components`
@@ -70,6 +90,7 @@ It should own:
 - border radius
 
 Do not spread theme decisions across unrelated components.
+See `08-theme-architecture.md` for the project-specific theme structure.
 
 ## CSS Rule
 
@@ -113,4 +134,3 @@ When a dev server is available, use browser verification and screenshots.
 If old docs mention shadcn/ui or Tailwind as the UI system but the current user
 direction says Ant Design, follow Ant Design for new UI work. Keep old docs as
 product context unless the user asks to rewrite them.
-

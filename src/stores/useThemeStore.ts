@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { defaultAppearance, type AppAppearance } from '../theme/themes';
+import { defaultAppearance, type AppAppearance } from '../theme';
 
 interface ThemeState {
   appearance: AppAppearance;

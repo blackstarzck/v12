@@ -6,7 +6,7 @@ import { App as AntApp, ConfigProvider } from 'antd';
 import koKR from 'antd/locale/ko_KR';
 import App from './App';
 import { useThemeStore } from './stores/useThemeStore';
-import { defaultThemeName, getAppTheme } from './theme/themes';
+import { defaultThemeName, getAppTheme } from './theme';
 import './styles/global.css';
 
 function Root() {

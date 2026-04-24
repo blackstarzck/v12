@@ -19,6 +19,7 @@ Before implementing UI, read these files in order:
 6. `05-visual-motion-illustration.md` - charts, motion, illustration rules.
 7. `06-ai-development-workflow.md` - step-by-step AI coding workflow.
 8. `07-review-checklist.md` - final review checklist.
+9. `08-theme-architecture.md` - current project theme structure and management rules.
 
 ## How To Use These Rules
 
@@ -36,4 +37,3 @@ Before implementing UI, read these files in order:
 API details, and examples. It is not enough by itself for Ant Design's broader
 Design section, including values, global styles, design patterns, motion, and
 illustrations. This folder fills that gap for this project.
-
