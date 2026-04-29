@@ -62,6 +62,16 @@ function intersects(a, b) {
   return !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
 }
 
+function hasGlassSurface(surface) {
+  if (!surface) return false;
+  return (
+    surface.bg === 'rgba(0, 0, 0, 0)' &&
+    surface.blur?.includes('blur(20px)') &&
+    surface.shadow &&
+    surface.shadow !== 'none'
+  );
+}
+
 async function collectLayoutIssues(page, context) {
   return page.evaluate(({ contextName }) => {
     const issues = [];
@@ -130,6 +140,102 @@ async function collectLayoutIssues(page, context) {
   }, { contextName: context });
 }
 
+async function verifyLiquidGlassOverlays(browser, issues) {
+  const page = await browser.newPage({
+    viewport: { width: 1280, height: 720 },
+  });
+
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'talkpik-theme-preferences',
+      JSON.stringify({
+        state: { themeName: 'liquidGlass', appearance: 'light' },
+        version: 0,
+      }),
+    );
+  });
+
+  const slowTransitions = `
+    *, *::before, *::after {
+      transition-duration: 1400ms !important;
+      animation-duration: 1400ms !important;
+      animation-delay: 0ms !important;
+    }
+  `;
+
+  await page.goto(`${baseUrl}/`, { waitUntil: 'networkidle' });
+  await page.addStyleTag({ content: slowTransitions });
+  await page.waitForTimeout(200);
+
+  await page.locator('.app-header > .ant-space:last-child .ant-btn').first().click();
+  await page.waitForTimeout(80);
+  await page.screenshot({
+    path: path.join(outputDir, 'desktop-liquid-glass-drawer-early.png'),
+    fullPage: false,
+  });
+
+  const drawerEarly = await page.evaluate(() => {
+    const wrapper = document.querySelector('.app-drawer.ant-drawer-open .ant-drawer-content-wrapper');
+    if (!wrapper) return null;
+    return {
+      bg: getComputedStyle(wrapper).backgroundColor,
+      blur: getComputedStyle(wrapper, '::before').backdropFilter,
+      opacity: getComputedStyle(wrapper).opacity,
+      shadow: getComputedStyle(wrapper).boxShadow,
+      transform: getComputedStyle(wrapper).transform,
+    };
+  });
+
+  if (!hasGlassSurface(drawerEarly)) {
+    issues.push('liquidGlass: settings drawer does not have the glass surface on the first visible frame');
+  }
+  if (drawerEarly?.opacity !== '1') {
+    issues.push('liquidGlass: settings drawer fades the glass layer on the first visible frame');
+  }
+
+  await page.goto(`${baseUrl}/writing/53`, { waitUntil: 'networkidle' });
+  await page.addStyleTag({ content: slowTransitions });
+  await page.locator('textarea').fill('가'.repeat(140));
+  await page.locator('main .ant-card button.ant-btn-primary:not([disabled])').first().click();
+  await page.waitForFunction(() =>
+    Array.from(document.querySelectorAll('.app-modal')).some((node) => {
+      const modal = node.querySelector('.ant-modal');
+      if (!modal) return false;
+      const box = modal.getBoundingClientRect();
+      return getComputedStyle(node).display !== 'none' && box.width > 0 && box.height > 0;
+    }),
+  );
+  await page.waitForTimeout(80);
+  await page.screenshot({
+    path: path.join(outputDir, 'desktop-liquid-glass-modal-early.png'),
+    fullPage: false,
+  });
+
+  const modalEarly = await page.evaluate(() => {
+    const wrap = Array.from(document.querySelectorAll('.app-modal')).find((node) => {
+      const modal = node.querySelector('.ant-modal');
+      if (!modal) return false;
+      const box = modal.getBoundingClientRect();
+      return getComputedStyle(node).display !== 'none' && box.width > 0 && box.height > 0;
+    });
+    const surface = wrap?.querySelector('.ant-modal-content');
+    const modal = wrap?.querySelector('.ant-modal');
+    if (!surface || !modal) return null;
+    return {
+      bg: getComputedStyle(surface).backgroundColor,
+      blur: getComputedStyle(surface, '::before').backdropFilter,
+      shadow: getComputedStyle(surface).boxShadow,
+      transform: getComputedStyle(modal).transform,
+    };
+  });
+
+  if (!hasGlassSurface(modalEarly)) {
+    issues.push('liquidGlass: submit modal does not have the glass surface on the first visible frame');
+  }
+
+  await page.close();
+}
+
 async function runVerification() {
   await mkdir(outputDir, { recursive: true });
   const browser = await chromium.launch({ headless: true });
@@ -176,9 +282,19 @@ async function runVerification() {
     }
 
     await page.goto(`${baseUrl}/`, { waitUntil: 'networkidle' });
-    await page.getByLabel('화면 설정 열기').click();
-    await page.getByRole('dialog', { name: /화면 설정/ }).waitFor();
-    await page.getByLabel('화면 모드 선택').getByText('다크').click();
+    await page.locator('.app-header > .ant-space:last-child .ant-btn').first().click();
+    await page.locator('.ant-drawer-open').waitFor();
+    await page.evaluate(() => {
+      const visibleWrapper = Array.from(document.querySelectorAll('.ant-drawer-content-wrapper')).find(
+        (node) => getComputedStyle(node).display !== 'none',
+      );
+      const appearanceSegmented = visibleWrapper?.querySelectorAll('.ant-segmented')[1];
+      const darkItem = appearanceSegmented?.querySelectorAll('.ant-segmented-item')[1];
+      if (!(darkItem instanceof HTMLElement)) {
+        throw new Error('settings drawer appearance control is not visible');
+      }
+      darkItem.click();
+    });
     await page.waitForFunction(() => document.documentElement.dataset.appearance === 'dark');
     await page.screenshot({
       path: path.join(outputDir, `${viewport.name}-settings-drawer-dark.png`),
@@ -188,25 +304,25 @@ async function runVerification() {
     const themeState = await page.evaluate(() => ({
       theme: document.documentElement.dataset.theme,
       appearance: document.documentElement.dataset.appearance,
-      appColorScheme: getComputedStyle(document.documentElement)
-        .getPropertyValue('--app-color-scheme')
-        .trim(),
-      appBg: getComputedStyle(document.documentElement).getPropertyValue('--app-bg'),
+      colorScheme: document.documentElement.style.colorScheme,
+      bodyBackground: getComputedStyle(document.body).backgroundColor,
     }));
 
     if (themeState.theme !== 'default') {
       allIssues.push(`${viewport.name}: default theme was not applied globally`);
     }
-    if (themeState.appearance !== 'dark' || themeState.appColorScheme !== 'dark') {
+    if (themeState.appearance !== 'dark' || themeState.colorScheme !== 'dark') {
       allIssues.push(`${viewport.name}: setting drawer did not apply dark mode`);
     }
-    if (!themeState.appBg.includes('#101514')) {
-      allIssues.push(`${viewport.name}: default dark theme CSS variables were not applied globally`);
+    if (!themeState.bodyBackground || themeState.bodyBackground === 'rgba(0, 0, 0, 0)') {
+      allIssues.push(`${viewport.name}: default dark mode did not paint the body background`);
     }
 
     allIssues.push(...consoleIssues);
     await page.close();
   }
+
+  await verifyLiquidGlassOverlays(browser, allIssues);
 
   await browser.close();
 

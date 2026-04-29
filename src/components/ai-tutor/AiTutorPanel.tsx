@@ -8,7 +8,6 @@ import {
 } from '@ant-design/icons';
 import {
   Button,
-  Drawer,
   Empty,
   Flex,
   Input,
@@ -20,6 +19,7 @@ import {
 } from 'antd';
 import { useState } from 'react';
 import { useAiTutorStore, type AiTutorTab } from '../../stores/useAiTutorStore';
+import { AppDrawer } from '../shared/AppDrawer';
 
 const quickActions = [
   { label: '단어 검색', icon: <SearchOutlined />, message: '증가하다의 예문을 알려줘.' },
@@ -40,7 +40,7 @@ export function AiTutorPanel() {
   };
 
   return (
-    <Drawer
+    <AppDrawer
       rootClassName="ai-tutor-drawer"
       title="AI 튜터"
       placement="right"
@@ -140,6 +140,6 @@ export function AiTutorPanel() {
           },
         ]}
       />
-    </Drawer>
+    </AppDrawer>
   );
 }

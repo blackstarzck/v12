@@ -3,6 +3,7 @@ from __future__ import annotations
 import uuid
 from typing import Any, Callable
 
+from .clarification import ensure_clarification_resolved
 from .document_gate import DocumentGate
 from .requirement_analysis import ensure_requirements_analyzed
 from .session_store import FileSessionStore
@@ -175,6 +176,7 @@ class ToolGateway:
         requires_gate = self._requires_gate(name)
         if requires_gate:
             ensure_requirements_analyzed(self.store, session_id=session_id, turn_id=turn_id)
+            ensure_clarification_resolved(self.store, session_id=session_id, turn_id=turn_id)
             self.gate.ensure_open(session_id, turn_id)
         event = self.store.emit_event(
             session_id,

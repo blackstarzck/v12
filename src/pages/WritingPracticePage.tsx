@@ -7,7 +7,6 @@ import {
   Collapse,
   Input,
   List,
-  Modal,
   Progress,
   Row,
   Space,
@@ -18,6 +17,7 @@ import {
 import { SaveOutlined, SendOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AppModal } from '../components/shared/AppModal';
 import { PageHeader } from '../components/shared/PageHeader';
 import { writingGuides } from '../data/mockData';
 import { useWritingStore } from '../stores/useWritingStore';
@@ -156,7 +156,7 @@ export function WritingPracticePage({ type }: WritingPracticePageProps) {
         </Col>
       </Row>
 
-      <Modal
+      <AppModal
         title="답안을 제출할까요?"
         open={confirmOpen}
         okText="제출하기"
@@ -165,7 +165,7 @@ export function WritingPracticePage({ type }: WritingPracticePageProps) {
         onCancel={() => setConfirmOpen(false)}
       >
         제출 후에는 피드백 생성 단계로 이동합니다. 현재 답안은 보관함에도 저장됩니다.
-      </Modal>
+      </AppModal>
     </>
   );
 }

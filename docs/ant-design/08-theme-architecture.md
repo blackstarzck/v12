@@ -158,6 +158,33 @@ The runtime theme flow is:
 
 This gives the app one source of truth at runtime even though the files are split for maintainability.
 
+## Overlay Surface Rule
+
+`Drawer` and `Modal` are not just visual values. They also have an opening
+lifecycle.
+
+For themes with transparent, blurred, or glass-like surfaces, the first frame
+of an overlay matters. If the overlay motion fades the surface on entry, users
+can see a weak/default-looking surface before the themed surface is fully
+visible.
+
+Treat that as an overlay behavior rule, not only a token rule.
+
+Project rule:
+
+- user-facing `Drawer` components should use `src/components/shared/AppDrawer.tsx`
+- user-facing `Modal` components should use `src/components/shared/AppModal.tsx`
+- those wrappers provide stable project classes for overlay theme behavior
+- theme presets still own the visual values
+- global CSS may still provide structural layers such as blur or highlight when
+  AntD tokens cannot express them
+
+In short:
+
+- tokens decide the material
+- shared wrappers provide the stable overlay hook
+- CSS decides the extra glass structure only when AntD tokens are not enough
+
 ## Global vs Component Rules
 
 Use this decision rule:

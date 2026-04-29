@@ -7,6 +7,12 @@ export interface AppAppearanceOption {
   label: string;
 }
 
+export interface AppThemeOption<Name extends string = string> {
+  value: Name;
+  label: string;
+  description: string;
+}
+
 export interface AppThemeAppearanceConfig {
   algorithm?: ThemeConfig['algorithm'];
   token?: ThemeConfig['token'];

@@ -4,10 +4,8 @@ import {
   Card,
   Col,
   Descriptions,
-  Drawer,
   Flex,
   Grid,
-  Modal,
   Progress,
   Radio,
   Row,
@@ -19,6 +17,8 @@ import {
 } from 'antd';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AppDrawer } from '../components/shared/AppDrawer';
+import { AppModal } from '../components/shared/AppModal';
 import { PageHeader } from '../components/shared/PageHeader';
 
 interface MockExamPageProps {
@@ -125,7 +125,7 @@ export function MockExamPage({ mode = 'results' }: MockExamPageProps) {
           )}
         </Row>
         {!screens.lg && (
-          <Drawer
+          <AppDrawer
             title={`OMR 답안지 · ${answered}/10문항`}
             placement="bottom"
             open={omrOpen}
@@ -133,9 +133,9 @@ export function MockExamPage({ mode = 'results' }: MockExamPageProps) {
             height="75dvh"
           >
             <OmrContent answers={answers} setAnswers={setAnswers} />
-          </Drawer>
+          </AppDrawer>
         )}
-        <Modal
+        <AppModal
           title="시험을 종료할까요?"
           open={endOpen}
           okText="종료하고 결과 보기"
@@ -144,7 +144,7 @@ export function MockExamPage({ mode = 'results' }: MockExamPageProps) {
           onOk={() => navigate('/mock/results')}
         >
           종료하면 현재 OMR 답안 상태로 채점 결과 화면으로 이동합니다.
-        </Modal>
+        </AppModal>
       </>
     );
   }

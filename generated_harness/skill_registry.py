@@ -8,6 +8,11 @@ from typing import Any
 DEFAULT_AGENT_SKILLS: dict[str, list[dict[str, str]]] = {
     "planner": [
         {
+            "skill_id": "scope-clarification",
+            "name": "Scope Clarification",
+            "purpose": "Pause theme-scoped requests and confirm exact scope before document gating or execution.",
+        },
+        {
             "skill_id": "requirement-analysis",
             "name": "Requirement Analysis",
             "purpose": "Analyze user intent, target paths, required docs, risks, and repeat patterns before execution.",

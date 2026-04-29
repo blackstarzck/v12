@@ -23,13 +23,17 @@ class DocumentGate:
             raise DocumentGateError(f"Required document is missing: {document['path']}")
         return hashlib.sha256(path.read_bytes()).hexdigest()
 
-    def emit_required(self, session_id: str, turn_id: str, required_docs: list[RequiredDocument]) -> None:
+    def emit_required(self, session_id: str, turn_id: str, required_docs: list[RequiredDocument | dict[str, Any]]) -> None:
+        normalized_documents = [
+            doc.to_dict() if hasattr(doc, "to_dict") else dict(doc)
+            for doc in required_docs
+        ]
         self.store.emit_event(
             session_id,
             "docs.required",
             {
                 "turn_id": turn_id,
-                "documents": [doc.to_dict() for doc in required_docs],
+                "documents": normalized_documents,
             },
         )
 

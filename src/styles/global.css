@@ -22,6 +22,11 @@ body {
   min-height: 100dvh;
   font-family: Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   word-break: keep-all;
+  background-color: #0f1724;
+  background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=2070&q=80');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .skip-link {
@@ -39,6 +44,162 @@ body {
 
 .app-shell {
   min-height: 100dvh;
+}
+
+html[data-theme='liquidGlass'] .app-shell,
+html[data-theme='liquidGlass'] .app-shell.ant-layout,
+html[data-theme='liquidGlass'] .app-shell > .ant-layout {
+  background: transparent !important;
+}
+
+html[data-theme='liquidGlass'][data-appearance='light'] {
+  --liquid-surface-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  --liquid-surface-divider: rgba(255, 255, 255, 0.2);
+  --liquid-surface-text-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
+}
+
+html[data-theme='liquidGlass'][data-appearance='dark'] {
+  --liquid-surface-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  --liquid-surface-divider: rgba(255, 255, 255, 0.12);
+  --liquid-surface-text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+html[data-theme='liquidGlass'] .ant-card,
+html[data-theme='liquidGlass'] .app-modal .ant-modal-content {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: var(--liquid-surface-shadow) !important;
+}
+
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-content-wrapper {
+  overflow: hidden;
+  isolation: isolate;
+  background: transparent !important;
+  box-shadow: var(--liquid-surface-shadow) !important;
+  will-change: transform;
+  contain: paint;
+}
+
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-panel-motion-left-enter,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-panel-motion-left-enter-active,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-panel-motion-left-appear,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-panel-motion-left-appear-active,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-panel-motion-right-enter,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-panel-motion-right-enter-active,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-panel-motion-right-appear,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-panel-motion-right-appear-active,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-panel-motion-top-enter,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-panel-motion-top-enter-active,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-panel-motion-top-appear,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-panel-motion-top-appear-active,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-panel-motion-bottom-enter,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-panel-motion-bottom-enter-active,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-panel-motion-bottom-appear,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-panel-motion-bottom-appear-active {
+  opacity: 1 !important;
+}
+
+html[data-theme='liquidGlass'] .ant-card::before,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-content-wrapper::before,
+html[data-theme='liquidGlass'] .app-modal .ant-modal-content::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+}
+
+html[data-theme='liquidGlass'] .ant-card::after,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-content-wrapper::after,
+html[data-theme='liquidGlass'] .app-modal .ant-modal-content::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.02) 45%, rgba(255, 255, 255, 0.08));
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.24),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-content {
+  height: 100%;
+  position: relative;
+  z-index: 1;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html[data-theme='liquidGlass'] .ant-card > *,
+html[data-theme='liquidGlass'] .ant-card .ant-card-head,
+html[data-theme='liquidGlass'] .ant-card .ant-card-body,
+html[data-theme='liquidGlass'] .ant-card .ant-card-cover,
+html[data-theme='liquidGlass'] .ant-card .ant-card-actions,
+html[data-theme='liquidGlass'] .ant-card .ant-card-grid,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-content > *,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-header,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-body,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-footer,
+html[data-theme='liquidGlass'] .ant-modal-content > *,
+html[data-theme='liquidGlass'] .app-modal .ant-modal-header,
+html[data-theme='liquidGlass'] .app-modal .ant-modal-body,
+html[data-theme='liquidGlass'] .app-modal .ant-modal-footer {
+  position: relative;
+  z-index: 1;
+  background: transparent !important;
+}
+
+html[data-theme='liquidGlass'] .ant-card .ant-card-head,
+html[data-theme='liquidGlass'] .ant-card .ant-card-body,
+html[data-theme='liquidGlass'] .ant-card .ant-card-actions,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-header,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-body,
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-footer,
+html[data-theme='liquidGlass'] .app-modal .ant-modal-header,
+html[data-theme='liquidGlass'] .app-modal .ant-modal-body,
+html[data-theme='liquidGlass'] .app-modal .ant-modal-footer {
+  text-shadow: var(--liquid-surface-text-shadow);
+}
+
+html[data-theme='liquidGlass'] .ant-card .ant-card-head {
+  border-bottom-color: var(--liquid-surface-divider) !important;
+}
+
+html[data-theme='liquidGlass'] .ant-card .ant-card-actions {
+  border-top-color: var(--liquid-surface-divider) !important;
+}
+
+html[data-theme='liquidGlass'] .ant-card .ant-card-actions > li:not(:last-child) {
+  border-inline-end-color: var(--liquid-surface-divider) !important;
+}
+
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-header {
+  border-bottom-color: var(--liquid-surface-divider) !important;
+}
+
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-footer {
+  border-top-color: var(--liquid-surface-divider) !important;
+}
+
+html[data-theme='liquidGlass'] .app-modal .ant-modal-header {
+  border-bottom-color: var(--liquid-surface-divider) !important;
+}
+
+html[data-theme='liquidGlass'] .app-modal .ant-modal-footer {
+  border-top-color: var(--liquid-surface-divider) !important;
+}
+
+html[data-theme='liquidGlass'] .app-drawer .ant-drawer-mask,
+html[data-theme='liquidGlass'] .app-modal .ant-modal-mask {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .app-sidebar {
@@ -101,6 +262,7 @@ body {
   width: min(1440px, 100%);
   margin: 0 auto;
   padding: 24px;
+  min-height: calc(100dvh - 88px);
 }
 
 .page-header {

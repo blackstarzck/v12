@@ -6,10 +6,11 @@ requirement-gated harness in this repository.
 Use it like a check-in desk before risky work:
 
 1. start the turn
-2. read the required documents the harness selects
-3. acknowledge the constraints you extracted
-4. do the implementation work
-5. run the pre-final audit before calling the work complete
+2. resolve clarification if the harness requests it
+3. read the required documents the harness selects
+4. acknowledge the constraints you extracted
+5. do the implementation work
+6. run the pre-final audit before calling the work complete
 
 ## When To Use This
 
@@ -54,9 +55,30 @@ What this does:
 - creates a durable `session_id`, which is the permanent work ledger
 - creates a `turn_id`, which is one request inside that ledger
 - analyzes the request before execution
-- selects the local project documents that must be read first
+- pauses for clarification when the request is theme-scoped
+- selects the local project documents that must be read first after clarification is resolved
 
-## Step 2: Generate The Acknowledgement Template
+## Step 2: Resolve Clarification When Required
+
+Theme-related work now pauses before planning or document acknowledgement.
+
+If the harness prints clarification questions, answer them before doing anything
+else:
+
+```powershell
+py scripts\run_turn.py `
+  --session-id <session_id> `
+  --resume-turn <turn_id> `
+  --clarification-response "Change only Card component tokens across both light and dark mode. Keep Button and Layout unchanged."
+```
+
+Use `docs/harness/theme-fast-start.md` as the first-pass reading map while
+answering.
+
+If the harness does not ask for clarification, continue to document
+acknowledgement.
+
+## Step 3: Generate The Acknowledgement Template
 
 After step 1, the harness prints the `session_id` and `turn_id`.
 
@@ -78,7 +100,7 @@ This writes a JSON file under:
 Think of this as a reading confirmation sheet. It is not enough to say
 "I read it." You need to fill in the actual constraints you extracted.
 
-## Step 3: Fill In The Constraints And Submit The Acknowledgement
+## Step 4: Fill In The Constraints And Submit The Acknowledgement
 
 Open the generated JSON file and write short constraints for each required
 document.
@@ -111,7 +133,7 @@ py scripts\ack_required_docs.py `
   --input .harness/acks/<session_id>-<turn_id>.json
 ```
 
-## Step 4: Continue The Turn
+## Step 5: Continue The Turn
 
 Once the acknowledgement is accepted, continue the turn:
 
@@ -124,7 +146,7 @@ py scripts\run_turn.py `
 The harness will continue through its implementer, simulated write, reviewer,
 and quality-review flow.
 
-## Step 5: Do The Real Implementation Work
+## Step 6: Do The Real Implementation Work
 
 The harness gives you the required docs and the execution ledger.
 You still do the real coding work in the repository as usual.
@@ -132,12 +154,13 @@ You still do the real coding work in the repository as usual.
 Recommended practical pattern:
 
 1. start the turn
-2. acknowledge the required docs
-3. perform the real edits and checks
-4. run the pre-final audit
-5. summarize the outcome
+2. resolve clarification if the harness pauses the turn
+3. acknowledge the required docs
+4. perform the real edits and checks
+5. run the pre-final audit
+6. summarize the outcome
 
-## Step 6: Run The Pre-Final Audit
+## Step 7: Run The Pre-Final Audit
 
 Before you say the work is complete, run:
 
@@ -182,11 +205,12 @@ py tests\test_harness_runtime.py
 For UI or theme work, use this minimum flow:
 
 1. `run_turn.py`
-2. `ack_required_docs.py --template`
-3. fill in constraints
-4. `ack_required_docs.py --input ...`
-5. do the implementation work
-6. `pre_final_audit.py`
+2. `run_turn.py --clarification-response ...` if the harness requests theme scope confirmation
+3. `ack_required_docs.py --template`
+4. fill in constraints
+5. `ack_required_docs.py --input ...`
+6. do the implementation work
+7. `pre_final_audit.py`
 
 If the task is small and read-only, you do not need to force the full flow.
 If the task changes UI, theme, shared components, or project rules, treat this

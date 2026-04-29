@@ -1,7 +1,8 @@
 import { MoonOutlined, SettingOutlined, SunOutlined } from '@ant-design/icons';
-import { Drawer, Flex, Segmented, Space, Typography } from 'antd';
+import { Flex, Segmented, Space, Typography } from 'antd';
+import { AppDrawer } from '../shared/AppDrawer';
 import { useThemeStore } from '../../stores/useThemeStore';
-import { appearanceOptions, type AppAppearance } from '../../theme';
+import { appearanceOptions, themeOptions, type AppAppearance, type AppThemeName } from '../../theme';
 
 interface SettingsDrawerProps {
   open: boolean;
@@ -10,10 +11,14 @@ interface SettingsDrawerProps {
 
 export function SettingsDrawer({ open, onClose }: SettingsDrawerProps) {
   const appearance = useThemeStore((state) => state.appearance);
+  const themeName = useThemeStore((state) => state.themeName);
   const setAppearance = useThemeStore((state) => state.setAppearance);
+  const setThemeName = useThemeStore((state) => state.setThemeName);
+  const activeThemeOption =
+    themeOptions.find((option) => option.value === themeName) ?? themeOptions[0];
 
   return (
-    <Drawer
+    <AppDrawer
       title={
         <Space size={8}>
           <SettingOutlined aria-hidden />
@@ -26,6 +31,24 @@ export function SettingsDrawer({ open, onClose }: SettingsDrawerProps) {
       width={340}
     >
       <Flex vertical gap={24}>
+        <section aria-labelledby="theme-setting-title">
+          <Flex vertical gap={12}>
+            <Typography.Text id="theme-setting-title" strong>
+              테마 스타일
+            </Typography.Text>
+            <Segmented
+              block
+              value={themeName}
+              options={themeOptions.map((option) => ({
+                label: option.label,
+                value: option.value,
+              }))}
+              onChange={(value) => setThemeName(value as AppThemeName)}
+              aria-label="테마 스타일 선택"
+            />
+            <Typography.Text type="secondary">{activeThemeOption.description}</Typography.Text>
+          </Flex>
+        </section>
         <section aria-labelledby="appearance-setting-title">
           <Flex vertical gap={12}>
             <Typography.Text id="appearance-setting-title" strong>
@@ -45,6 +68,6 @@ export function SettingsDrawer({ open, onClose }: SettingsDrawerProps) {
           </Flex>
         </section>
       </Flex>
-    </Drawer>
+    </AppDrawer>
   );
 }

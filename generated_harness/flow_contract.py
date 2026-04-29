@@ -37,6 +37,7 @@ class ExecutionFlowVerifier:
         )
 
         self._check_required_order(first_sequence, findings)
+        self._check_clarification(events, first_sequence, findings)
         self._check_agents(events, findings)
         self._check_tools(
             events,
@@ -76,6 +77,53 @@ class ExecutionFlowVerifier:
                 message="requirements.analyzed must appear before docs.required.",
             )
 
+    def _check_clarification(
+        self,
+        events: list[dict[str, Any]],
+        first_sequence: dict[str, int],
+        findings: list[dict[str, Any]],
+    ) -> None:
+        clarification_required = first_sequence.get("clarification.required")
+        clarification_resolved = first_sequence.get("clarification.resolved")
+        analyzed = first_sequence.get("requirements.analyzed")
+        required_docs = first_sequence.get("docs.required")
+
+        if clarification_required is not None and analyzed is not None and clarification_required < analyzed:
+            self._add_finding(
+                findings,
+                code="clarification_before_analysis",
+                message="clarification.required must appear after requirements.analyzed.",
+            )
+        if clarification_resolved is not None and clarification_required is None:
+            self._add_finding(
+                findings,
+                code="clarification_resolved_without_request",
+                message="clarification.resolved exists without an earlier clarification.required event.",
+            )
+        if (
+            clarification_required is not None
+            and clarification_resolved is not None
+            and clarification_resolved < clarification_required
+        ):
+            self._add_finding(
+                findings,
+                code="clarification_resolved_before_request",
+                message="clarification.resolved must appear after clarification.required.",
+            )
+        if clarification_required is not None and required_docs is not None:
+            if clarification_resolved is None:
+                self._add_finding(
+                    findings,
+                    code="docs_required_before_clarification_resolved",
+                    message="docs.required must not appear before clarification.resolved on clarification-gated turns.",
+                )
+            elif clarification_resolved > required_docs:
+                self._add_finding(
+                    findings,
+                    code="docs_required_before_clarification_resolved",
+                    message="docs.required must appear after clarification.resolved on clarification-gated turns.",
+                )
+
     def _check_agents(self, events: list[dict[str, Any]], findings: list[dict[str, Any]]) -> None:
         started: set[str] = set()
         for event in events:
@@ -113,6 +161,16 @@ class ExecutionFlowVerifier:
             for event in events
             if event["event_type"] == "docs.acknowledged"
         ]
+        clarification_required_sequences = [
+            int(event["sequence"])
+            for event in events
+            if event["event_type"] == "clarification.required"
+        ]
+        clarification_resolved_sequences = [
+            int(event["sequence"])
+            for event in events
+            if event["event_type"] == "clarification.resolved"
+        ]
         for event in events:
             payload = event.get("payload", {})
             tool_call_id = payload.get("tool_call_id")
@@ -140,6 +198,15 @@ class ExecutionFlowVerifier:
                             findings,
                             code="gated_tool_without_ack",
                             message="Gated tool call has no earlier docs.acknowledged event.",
+                            event=event,
+                        )
+                    if clarification_required_sequences and not any(
+                        item < sequence for item in clarification_resolved_sequences
+                    ):
+                        self._add_finding(
+                            findings,
+                            code="gated_tool_without_clarification",
+                            message="Gated tool call has no earlier clarification.resolved event.",
                             event=event,
                         )
                 continue
@@ -211,6 +278,16 @@ class ExecutionFlowVerifier:
             for event in events
             if event["event_type"] == "docs.acknowledged"
         ]
+        clarification_required_sequences = [
+            int(event["sequence"])
+            for event in events
+            if event["event_type"] == "clarification.required"
+        ]
+        clarification_resolved_sequences = [
+            int(event["sequence"])
+            for event in events
+            if event["event_type"] == "clarification.resolved"
+        ]
         for event in events:
             payload = event.get("payload", {})
             sandbox_ref = payload.get("sandbox_ref")
@@ -232,6 +309,15 @@ class ExecutionFlowVerifier:
                         findings,
                         code="sandbox_provision_without_ack",
                         message="sandbox.provisioned has no earlier docs.acknowledged event.",
+                        event=event,
+                    )
+                if clarification_required_sequences and not any(
+                    item < sequence for item in clarification_resolved_sequences
+                ):
+                    self._add_finding(
+                        findings,
+                        code="sandbox_provision_without_clarification",
+                        message="sandbox.provisioned has no earlier clarification.resolved event.",
                         event=event,
                     )
                 status_by_ref[sandbox_ref] = "active"

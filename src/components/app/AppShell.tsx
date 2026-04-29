@@ -14,7 +14,6 @@ import {
 import {
   Avatar,
   Button,
-  Drawer,
   Grid,
   Layout,
   Menu,
@@ -32,6 +31,7 @@ import { useThemeStore } from '../../stores/useThemeStore';
 import { useUserStore } from '../../stores/useUserStore';
 import type { Locale } from '../../types/domain';
 import { AiTutorPanel } from '../ai-tutor/AiTutorPanel';
+import { AppDrawer } from '../shared/AppDrawer';
 import { SettingsDrawer } from './SettingsDrawer';
 
 const { Header, Content, Sider } = Layout;
@@ -184,7 +184,7 @@ export function AppShell({ children }: AppShellProps) {
           {children}
         </Content>
       </Layout>
-      <Drawer
+      <AppDrawer
         title="TALKPIK AI"
         placement="left"
         open={mobileOpen}
@@ -192,7 +192,7 @@ export function AppShell({ children }: AppShellProps) {
         width={288}
       >
         <SidebarContent />
-      </Drawer>
+      </AppDrawer>
       <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <Tooltip title="AI 튜터">
         <Button

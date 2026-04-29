@@ -1,20 +1,29 @@
 import { createThemeFamily } from './create-theme';
 import { defaultThemePreset } from './presets/default';
-import type { AppAppearance, AppAppearanceOption, AppThemeRegistry } from './types';
+import { liquidGlassThemePreset } from './presets/liquid-glass';
+import type { AppAppearance, AppAppearanceOption, AppThemeOption, AppThemeRegistry } from './types';
 
 export const appearanceOptions: AppAppearanceOption[] = [
-  { value: 'light', label: '라이트' },
-  { value: 'dark', label: '다크' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
 ];
 
 export const themePresets = {
   default: defaultThemePreset,
+  liquidGlass: liquidGlassThemePreset,
 };
 
 export type AppThemeName = keyof typeof themePresets;
 
+export const themeOptions: AppThemeOption<AppThemeName>[] = Object.values(themePresets).map((preset) => ({
+  value: preset.name,
+  label: preset.label,
+  description: preset.description,
+}));
+
 export const themes: AppThemeRegistry<AppThemeName> = {
   default: createThemeFamily(defaultThemePreset),
+  liquidGlass: createThemeFamily(liquidGlassThemePreset),
 };
 
 export const defaultThemeName: AppThemeName = 'default';

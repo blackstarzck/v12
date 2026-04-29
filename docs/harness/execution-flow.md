@@ -21,44 +21,50 @@ work with a new `agent_run_id`, `tool_call_id`, or `sandbox_ref`.
 2. Emit `turn.started` for one user request.
 3. Emit `requirements.analyzed` before planning, writing, shell, sandbox, or
    unknown tool execution.
-4. Emit `docs.required` with the policy-selected documents.
-5. Block mutating tools and sandbox work until `docs.acknowledged` exists for
+4. Emit `clarification.required` when a theme-scoped request needs explicit
+   scope confirmation before planning or broad reading.
+5. Emit `clarification.resolved` before `docs.required` on clarification-gated
+   turns.
+6. Emit `docs.required` with the policy-selected documents.
+7. Block mutating tools and sandbox work until `docs.acknowledged` exists for
    the current turn.
-6. Start role work with `agent.started`, `agent.assigned`, and
+8. Start role work with `agent.started`, `agent.assigned`, and
    `agent.heartbeat`.
-7. Complete, fail, or time out each role with one of `agent.completed`,
+9. Complete, fail, or time out each role with one of `agent.completed`,
    `agent.failed`, or `agent.timed_out`.
-8. Wrap Codex-facing host tools with `runtime.codex.recorded_call(...)` or
+10. Wrap Codex-facing host tools with `runtime.codex.recorded_call(...)` or
    `runtime.codex.tool_call(...)`.
-9. Record every tool as `tool.called`, then `tool.completed` or `tool.failed`
+11. Record every tool as `tool.called`, then `tool.completed` or `tool.failed`
    with the same `tool_call_id`.
    A turn must not close while a `tool.called` event is still missing its
    terminal event.
-10. Denied tools record `tool.blocked` and do not emit `tool.called`.
-11. Record sandbox work through `sandbox.provisioned`, `sandbox.executed`,
+12. Denied tools record `tool.blocked` and do not emit `tool.called`.
+13. Record sandbox work through `sandbox.provisioned`, `sandbox.executed`,
     `sandbox.failed`, `sandbox.disposed`, and `sandbox.blocked` using
     `sandbox_ref`.
-12. Do not provision or execute a sandbox before required-document
+14. Do not provision or execute a sandbox before required-document
     acknowledgement when required documents exist.
-13. Do not pass credentials, tokens, passwords, or secret-looking payload keys
+15. Do not provision or execute a sandbox before `clarification.resolved` on
+    clarification-gated turns.
+16. Do not pass credentials, tokens, passwords, or secret-looking payload keys
     into sandbox resources or sandbox execution input.
-14. Record changed files as `repo.changed` with the responsible
+17. Record changed files as `repo.changed` with the responsible
     `tool_call_id`. A changed-file event without `tool_call_id` is treated as
     an unwrapped host-tool change.
-15. Record reviewer validation as `validation.completed`. When validation calls
+18. Record reviewer validation as `validation.completed`. When validation calls
     an external browser tool, route it through `validator.browser` so
     `tool.called`, `tool.completed`, or `tool.failed` share the same
     `tool_call_id`.
     If the Playwright MCP run happens outside the Python runtime, emit
     `validation.requested` first and later record the MCP result through the
     `validator.browser` bridge.
-16. Record quality review as `quality.review_completed`.
-17. Route immediate repair through `fixer` when quality review requests it.
-18. Finish the turn with `turn.completed`, or leave it open for retry or
+19. Record quality review as `quality.review_completed`.
+20. Route immediate repair through `fixer` when quality review requests it.
+21. Finish the turn with `turn.completed`, or leave it open for retry or
     operator attention.
-19. Orchestrated work should claim a queued item with `work.lease_acquired`
+22. Orchestrated work should claim a queued item with `work.lease_acquired`
     before emitting `work.started`.
-20. Run `flow.checked` after orchestrated execution to confirm the event stream
+23. Run `flow.checked` after orchestrated execution to confirm the event stream
     still follows this contract.
 
 ## Main Flow
@@ -68,7 +74,11 @@ flowchart TD
     A["User request"] --> B["session.started or existing session_id"]
     B --> C["turn.started with turn_id"]
     C --> D["requirements.analyzed"]
-    D --> E["docs.required"]
+    D --> DC{"Theme scope needs confirmation?"}
+    DC -- "Yes" --> DR["clarification.required"]
+    DR --> DS["clarification.resolved"]
+    DC -- "No" --> E["docs.required"]
+    DS --> E
     E --> F{"docs.acknowledged?"}
     F -- "No" --> G["Mutating tools and sandbox are blocked"]
     F -- "Yes" --> WQ["work.queued"]
@@ -124,6 +134,12 @@ sequenceDiagram
     Runtime->>SessionStore: session.started
     Runtime->>SessionStore: turn.started
     Runtime->>SessionStore: requirements.analyzed
+    alt Theme clarification required
+        Runtime->>SessionStore: clarification.required
+        Runtime-->>User: clarification questions + fast-start paths
+        User->>Runtime: resolve_clarification(response)
+        Runtime->>SessionStore: clarification.resolved
+    end
     Runtime->>SessionStore: docs.required
     Runtime-->>User: acknowledgement template
     User->>Runtime: acknowledge_required_docs
@@ -183,8 +199,13 @@ The harness should continuously check these rules while new features are
 developed:
 
 - `requirements.analyzed` must exist before `docs.required`.
+- `clarification.required` must appear after `requirements.analyzed`.
+- `clarification.resolved` must not exist without an earlier `clarification.required`.
+- On clarification-gated turns, `docs.required` must appear after `clarification.resolved`.
 - Gated `tool.called` events must have both `requirements.analyzed` and
   `docs.acknowledged` earlier in the same turn.
+- On clarification-gated turns, gated `tool.called` events must also have an
+  earlier `clarification.resolved`.
 - Every `agent.completed`, `agent.failed`, or `agent.timed_out` must match an
   earlier `agent.started`.
 - Every `tool.completed` or `tool.failed` must match an earlier `tool.called`
@@ -202,6 +223,8 @@ developed:
   `sandbox.disposed` or `sandbox.failed`.
 - `sandbox.provisioned` must appear after `requirements.analyzed`, and after
   `docs.acknowledged` when the turn has required documents.
+- On clarification-gated turns, `sandbox.provisioned` must also appear after
+  `clarification.resolved`.
 - `turn.completed` must not appear before `quality.review_completed`.
 - Every `work.lease_acquired` must match an earlier `work.queued` by
   `work_item_id`.

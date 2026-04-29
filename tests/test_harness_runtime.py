@@ -12,6 +12,7 @@ from pathlib import Path
 
 from generated_harness import (
     CODEX_HOST_TOOL_EXAMPLES,
+    ClarificationRequiredError,
     CodexHostGuard,
     ExecutionFlowVerifier,
     HarnessRuntime,
@@ -39,8 +40,10 @@ class HarnessRuntimeTests(unittest.TestCase):
         self.repo_root = Path(self.temp_dir.name)
         (self.repo_root / "config").mkdir()
         (self.repo_root / "docs" / "guides").mkdir(parents=True)
+        (self.repo_root / "docs" / "harness").mkdir(parents=True)
         (self.repo_root / "src" / "backend").mkdir(parents=True)
         (self.repo_root / "src" / "frontend").mkdir(parents=True)
+        (self.repo_root / "src" / "theme" / "components").mkdir(parents=True)
 
         registry = {
             "documents": [
@@ -70,6 +73,19 @@ class HarnessRuntimeTests(unittest.TestCase):
                     "section_hints": ["a11y"],
                     "toc": {"max_chunk_lines": 50, "max_heading_depth": 3},
                 },
+                {
+                    "doc_id": "theme-fast-start",
+                    "path": "docs/harness/theme-fast-start.md",
+                    "summary": "Theme fast-start rules",
+                    "priority": 99,
+                    "keywords": ["theme", "token", "card"],
+                    "intent_patterns": ["change", "update", "refactor"],
+                    "path_globs": ["src/theme/**"],
+                    "content_patterns": ["sharedComponentTokens", "ConfigProvider"],
+                    "labels": ["theme", "theme-clarification", "workflow"],
+                    "section_hints": ["Mandatory Clarification"],
+                    "toc": {"max_chunk_lines": 50, "max_heading_depth": 3},
+                },
             ]
         }
         (self.repo_root / "config" / "document_registry.json").write_text(json.dumps(registry), encoding="utf-8")
@@ -81,8 +97,16 @@ class HarnessRuntimeTests(unittest.TestCase):
             "# Frontend\n\n## Accessibility\n\nLabel controls.\n",
             encoding="utf-8",
         )
+        (self.repo_root / "docs" / "harness" / "theme-fast-start.md").write_text(
+            "# Theme Fast Start\n\n## Mandatory Clarification\n\nConfirm exact scope first.\n",
+            encoding="utf-8",
+        )
         (self.repo_root / "src" / "backend" / "api.py").write_text("router = object()\n", encoding="utf-8")
         (self.repo_root / "src" / "frontend" / "screen.tsx").write_text("useState()\n", encoding="utf-8")
+        (self.repo_root / "src" / "theme" / "components" / "shared.ts").write_text(
+            "export const sharedComponentTokens = {};\n",
+            encoding="utf-8",
+        )
         self.runtime = HarnessRuntime(self.repo_root)
 
     def tearDown(self) -> None:
@@ -124,6 +148,83 @@ class HarnessRuntimeTests(unittest.TestCase):
             target_paths=["src/backend/api.py"],
         )
         self.assertEqual(result["status"], "noop")
+
+    def test_theme_turn_requires_clarification_before_docs(self) -> None:
+        start = self.runtime.start_turn(
+            user_input="Card component theme color only. Do not touch button styles.",
+            target_paths=["src/theme/components/shared.ts"],
+        )
+        self.assertEqual(start["status"], "awaiting_clarification")
+        self.assertEqual(start["required_documents"], [])
+        self.assertIsNone(start["planner_result"])
+        self.assertIsNotNone(
+            self.runtime.store.latest_event(start["session_id"], "clarification.required", start["turn_id"])
+        )
+        self.assertIsNone(
+            self.runtime.store.latest_event(start["session_id"], "docs.required", start["turn_id"])
+        )
+
+    def test_theme_turn_blocks_until_clarification_then_requires_doc_ack(self) -> None:
+        start = self.runtime.start_turn(
+            user_input="Adjust Card theme token spacing only.",
+            target_paths=["src/theme/components/shared.ts"],
+        )
+        with self.assertRaises(ClarificationRequiredError):
+            self.runtime.simulate_write(
+                session_id=start["session_id"],
+                turn_id=start["turn_id"],
+                target_paths=["src/theme/components/shared.ts"],
+            )
+
+        resolved = self.runtime.resolve_clarification(
+            session_id=start["session_id"],
+            turn_id=start["turn_id"],
+            clarification_response="Change only Card component tokens in light and dark mode. Keep other components unchanged.",
+        )
+        self.assertEqual(resolved["status"], "clarification_resolved")
+        self.assertEqual([doc["doc_id"] for doc in resolved["required_documents"]], ["theme-fast-start"])
+        self.assertIn("Confirmed theme clarification:", resolved["clarification"]["merged_user_input"])
+
+        with self.assertRaises(DocumentGateError):
+            self.runtime.simulate_write(
+                session_id=start["session_id"],
+                turn_id=start["turn_id"],
+                target_paths=["src/theme/components/shared.ts"],
+            )
+
+        self.runtime.acknowledge_required_docs(
+            session_id=start["session_id"],
+            turn_id=start["turn_id"],
+            auto=True,
+        )
+        result = self.runtime.simulate_write(
+            session_id=start["session_id"],
+            turn_id=start["turn_id"],
+            target_paths=["src/theme/components/shared.ts"],
+        )
+        self.assertEqual(result["status"], "noop")
+
+    def test_flow_verifier_detects_docs_required_before_clarification_resolution(self) -> None:
+        start = self.runtime.start_turn(
+            user_input="Adjust Card theme token spacing only.",
+            target_paths=["src/theme/components/shared.ts"],
+        )
+        self.runtime.store.emit_event(
+            start["session_id"],
+            "docs.required",
+            {
+                "turn_id": start["turn_id"],
+                "documents": [{"doc_id": "theme-fast-start", "path": "docs/harness/theme-fast-start.md"}],
+            },
+        )
+        result = ExecutionFlowVerifier(self.runtime.store).verify_turn(
+            session_id=start["session_id"],
+            turn_id=start["turn_id"],
+        )
+        self.assertEqual(result.status, "failed")
+        self.assertTrue(
+            any(finding["code"] == "docs_required_before_clarification_resolved" for finding in result.findings)
+        )
 
     def test_agents_receive_role_skills(self) -> None:
         start = self.runtime.start_turn(
@@ -1457,7 +1558,7 @@ class HarnessRuntimeTests(unittest.TestCase):
             encoding="utf-8",
         )
         built = build_library(self.repo_root, self.repo_root / "config" / "document_registry.json")
-        self.assertEqual(built, 2)
+        self.assertEqual(built, 3)
         index_text = (
             self.repo_root / ".harness" / "document_library" / "backend-rules" / "INDEX.md"
         ).read_text(encoding="utf-8")

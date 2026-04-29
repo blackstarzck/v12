@@ -1,4 +1,5 @@
 from .codex_adapter import CodexToolAdapter, CodexToolCall
+from .clarification import ClarificationRequiredError
 from .flow_contract import ExecutionFlowVerifier, FlowCheckResult
 from .host_integration import (
     CODEX_HOST_TOOL_EXAMPLES,
@@ -19,6 +20,7 @@ __all__ = [
     "CodexToolAdapter",
     "CodexToolCall",
     "CODEX_HOST_TOOL_EXAMPLES",
+    "ClarificationRequiredError",
     "CodexHostGuard",
     "ExecutionFlowVerifier",
     "FlowCheckResult",

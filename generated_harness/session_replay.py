@@ -125,6 +125,8 @@ class SessionReplayer:
             return "already_completed"
         if not state["requirements_analyzed"]:
             return "analyze_requirements"
+        if state["clarification_required"] and not state["clarification_resolved"]:
+            return "resolve_clarification"
         if state["required_documents"] and not state["docs_acknowledged"]:
             return "acknowledge_required_docs"
         if state["open_tool_calls"]:
@@ -143,6 +145,11 @@ class SessionReplayer:
         ]
         turn_started = next((event for event in events if event["event_type"] == "turn.started"), None)
         requirements = next((event for event in events if event["event_type"] == "requirements.analyzed"), None)
+        clarification_required = next((event for event in events if event["event_type"] == "clarification.required"), None)
+        clarification_resolved = next(
+            (event for event in reversed(events) if event["event_type"] == "clarification.resolved"),
+            None,
+        )
         docs_required = next((event for event in events if event["event_type"] == "docs.required"), None)
         docs_acknowledged = next((event for event in events if event["event_type"] == "docs.acknowledged"), None)
         quality_review = next(
@@ -173,6 +180,8 @@ class SessionReplayer:
             "event_count": len(events),
             "turn_started": turn_started.get("payload") if turn_started else None,
             "requirements_analyzed": requirements.get("payload") if requirements else None,
+            "clarification_required": clarification_required.get("payload") if clarification_required else None,
+            "clarification_resolved": clarification_resolved.get("payload") if clarification_resolved else None,
             "required_documents": docs_required.get("payload", {}).get("documents", []) if docs_required else [],
             "docs_acknowledged": docs_acknowledged.get("payload") if docs_acknowledged else None,
             "agents": list(agents.values()),
@@ -211,6 +220,11 @@ class SessionReplayer:
             f"Acknowledged docs: {', '.join(acknowledged_doc_ids) if acknowledged_doc_ids else 'none'}.",
             f"Changed paths: {', '.join(state['changed_paths']) if state['changed_paths'] else 'none'}.",
         ]
+        if state["clarification_required"]:
+            summary_parts.append(
+                "Clarification: "
+                + ("resolved." if state["clarification_resolved"] else "pending.")
+            )
         if state["quality_review"]:
             summary_parts.append(f"Quality fallback: {state['quality_review'].get('fallback_action')}.")
         compact = {
@@ -221,6 +235,7 @@ class SessionReplayer:
             "summary": " ".join(summary_parts),
             "required_doc_ids": required_doc_ids,
             "acknowledged_doc_ids": acknowledged_doc_ids,
+            "clarification_status": "resolved" if state["clarification_resolved"] else ("pending" if state["clarification_required"] else "not_required"),
             "changed_paths": state["changed_paths"],
             "open_tool_calls": state["open_tool_calls"],
             "open_agent_runs": state["open_agent_runs"],

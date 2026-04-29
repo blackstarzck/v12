@@ -4,6 +4,7 @@ import uuid
 from pathlib import Path
 from typing import Any, Callable, Protocol
 
+from .clarification import ensure_clarification_resolved
 from .requirement_analysis import ensure_requirements_analyzed
 from .session_store import FileSessionStore
 from .tool_gateway import ToolGateway
@@ -193,6 +194,7 @@ class SandboxAdapter:
         sandbox_ref = self._new_sandbox_ref()
         safe_resources = resources or {}
         ensure_requirements_analyzed(self.store, session_id=session_id, turn_id=turn_id)
+        ensure_clarification_resolved(self.store, session_id=session_id, turn_id=turn_id)
         self.gateway.gate.ensure_open(session_id, turn_id)
         self._reject_sensitive_payload(
             session_id=session_id,

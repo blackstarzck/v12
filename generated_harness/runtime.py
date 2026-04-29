@@ -8,6 +8,15 @@ from typing import Any
 from .agents import AgentExecutor, DefaultAgentExecutor, build_packet
 from .browser_review import BrowserReviewHandler, BrowserReviewRunner
 from .checklists import build_post_run_questions
+from .clarification import (
+    ClarificationRequiredError,
+    build_theme_clarification_payload,
+    ensure_clarification_resolved,
+    latest_clarification_required,
+    latest_clarification_resolved,
+    merged_user_input,
+    theme_clarification_needed,
+)
 from .codex_adapter import CodexToolAdapter
 from .document_gate import DocumentGate, DocumentGateError
 from .document_registry import DocumentRegistry
@@ -266,60 +275,18 @@ class HarnessRuntime:
         turn_id = uuid.uuid4().hex[:8]
         self._ensure_session(session_id)
         self.store.emit_event(session_id, "turn.started", {"turn_id": turn_id, "user_input": user_input, "target_paths": target_paths})
-        requirement_analysis, required_docs, memory = self.analyzer.analyze_turn(
+        requirement_analysis, _required_docs, memory = self.analyzer.analyze_turn(
             session_id=session_id,
             turn_id=turn_id,
             user_input=user_input,
             target_paths=target_paths,
         )
-        self.gate.emit_required(session_id, turn_id, required_docs)
-
-        required_payload = requirement_analysis["required_documents"]
-        planner_skills = self.skills.skills_for_role("planner")
-        planner_run_id = self._start_agent_run(
-            session_id=session_id,
-            turn_id=turn_id,
-            role="planner",
-            skills=planner_skills,
-        )
-        planner_packet = build_packet(
-            role="planner",
-            turn_id=turn_id,
-            user_input=user_input,
-            target_paths=target_paths,
-            required_documents=required_payload,
-            requirement_memory=memory,
-            agent_run_id=planner_run_id,
-            assigned_skills=planner_skills,
-            extra={
-                "inferred_intents": requirement_analysis["inferred_intents"],
-                "requirement_analysis": requirement_analysis,
-            },
-        )
-        try:
-            planner_result = self.executor.run("planner", planner_packet)
-        except Exception as exc:
-            self._fail_agent_run(
-                session_id=session_id,
-                turn_id=turn_id,
-                agent_run_id=planner_run_id,
-                role="planner",
-                error=exc,
-            )
-            raise
-        planner_payload = self._complete_agent_run(
-            session_id=session_id,
-            turn_id=turn_id,
-            agent_run_id=planner_run_id,
-            result=planner_result,
-        )
-
         updated_memory = self.memory.update(
             turn_id=turn_id,
             user_input=user_input,
             target_paths=target_paths,
             inferred_intents=requirement_analysis["inferred_intents"],
-            required_docs=required_payload,
+            required_docs=requirement_analysis["required_documents"],
             reviewer_questions=requirement_analysis["reviewer_questions"],
             open_risks=requirement_analysis["open_risks"],
             registry_suggestions=requirement_analysis["registry_suggestions"],
@@ -332,19 +299,51 @@ class HarnessRuntime:
             {
                 "turn_id": turn_id,
                 "inferred_intents": requirement_analysis["inferred_intents"],
-                "required_doc_ids": [doc["doc_id"] for doc in required_payload],
+                "required_doc_ids": [doc["doc_id"] for doc in requirement_analysis["required_documents"]],
                 "registry_suggestions": requirement_analysis["registry_suggestions"],
                 "skill_suggestions": requirement_analysis["skill_suggestions"],
             },
         )
-        return {
+        output = {
             "session_id": session_id,
             "turn_id": turn_id,
+            "requirement_memory": updated_memory,
+            "requirement_analysis": requirement_analysis,
+        }
+        if theme_clarification_needed(
+            user_input=user_input,
+            target_paths=target_paths,
+            required_documents=requirement_analysis["required_documents"],
+        ):
+            clarification_payload = build_theme_clarification_payload(
+                turn_id=turn_id,
+                user_input=user_input,
+                target_paths=target_paths,
+                required_documents=requirement_analysis["required_documents"],
+            )
+            self.store.emit_event(session_id, "clarification.required", clarification_payload)
+            return {
+                **output,
+                "status": "awaiting_clarification",
+                "clarification": clarification_payload,
+                "required_documents": [],
+                "acknowledgement_template": None,
+                "planner_result": None,
+            }
+
+        required_payload, planner_payload = self._emit_docs_and_planner(
+            session_id=session_id,
+            turn_id=turn_id,
+            requirement_analysis=requirement_analysis,
+            requirement_memory=updated_memory,
+            user_input=user_input,
+            target_paths=target_paths,
+        )
+        return {
+            **output,
             "required_documents": required_payload,
             "acknowledgement_template": self.gate.build_ack_template(required_payload),
             "planner_result": planner_payload,
-            "requirement_memory": updated_memory,
-            "requirement_analysis": requirement_analysis,
         }
 
     def _require_analysis_completed(self, *, session_id: str, turn_id: str) -> dict[str, Any]:
@@ -354,6 +353,25 @@ class HarnessRuntime:
             turn_id=turn_id,
             block_event_type="turn.blocked",
         )
+
+    def _ensure_clarification_resolved(self, *, session_id: str, turn_id: str) -> dict[str, Any] | None:
+        return ensure_clarification_resolved(
+            self.store,
+            session_id=session_id,
+            turn_id=turn_id,
+            block_event_type="turn.blocked",
+        )
+
+    def _require_turn_ready_for_execution(self, *, session_id: str, turn_id: str) -> dict[str, Any]:
+        analysis = self._require_analysis_completed(session_id=session_id, turn_id=turn_id)
+        self._ensure_clarification_resolved(session_id=session_id, turn_id=turn_id)
+        return analysis
+
+    def _effective_user_input(self, *, session_id: str, turn_id: str, fallback: str) -> str:
+        resolved = latest_clarification_resolved(self.store, session_id=session_id, turn_id=turn_id)
+        if resolved is None:
+            return fallback
+        return str(resolved.get("merged_user_input") or fallback)
 
     def _latest_agent_result(self, *, session_id: str, turn_id: str, role: str) -> dict[str, Any] | None:
         for event in reversed(self.store.get_events(session_id)):
@@ -375,6 +393,74 @@ class HarnessRuntime:
         if event is None:
             return None
         return event["payload"]
+
+    def _emit_docs_and_planner(
+        self,
+        *,
+        session_id: str,
+        turn_id: str,
+        requirement_analysis: dict[str, Any],
+        requirement_memory: dict[str, Any],
+        user_input: str,
+        target_paths: list[str],
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+        required_payload = [dict(document) for document in requirement_analysis["required_documents"]]
+        self.gate.emit_required(session_id, turn_id, required_payload)
+
+        planner_skills = self.skills.skills_for_role("planner")
+        planner_run_id = self._start_agent_run(
+            session_id=session_id,
+            turn_id=turn_id,
+            role="planner",
+            skills=planner_skills,
+        )
+        planner_packet = build_packet(
+            role="planner",
+            turn_id=turn_id,
+            user_input=user_input,
+            target_paths=target_paths,
+            required_documents=required_payload,
+            requirement_memory=requirement_memory,
+            agent_run_id=planner_run_id,
+            assigned_skills=planner_skills,
+            extra={
+                "inferred_intents": requirement_analysis["inferred_intents"],
+                "requirement_analysis": requirement_analysis,
+                "clarification": latest_clarification_resolved(
+                    self.store,
+                    session_id=session_id,
+                    turn_id=turn_id,
+                ),
+            },
+        )
+        try:
+            planner_result = self.executor.run("planner", planner_packet)
+        except Exception as exc:
+            self._fail_agent_run(
+                session_id=session_id,
+                turn_id=turn_id,
+                agent_run_id=planner_run_id,
+                role="planner",
+                error=exc,
+            )
+            raise
+        planner_payload = self._complete_agent_run(
+            session_id=session_id,
+            turn_id=turn_id,
+            agent_run_id=planner_run_id,
+            result=planner_result,
+        )
+        return required_payload, planner_payload
+
+    def pending_clarification(self, *, session_id: str, turn_id: str) -> dict[str, Any] | None:
+        required_payload = latest_clarification_required(self.store, session_id=session_id, turn_id=turn_id)
+        if required_payload is None:
+            return None
+        required_event = self.store.latest_event(session_id, "clarification.required", turn_id)
+        resolved_event = self.store.latest_event(session_id, "clarification.resolved", turn_id)
+        if required_event is not None and resolved_event is not None and int(resolved_event["sequence"]) > int(required_event["sequence"]):
+            return None
+        return required_payload
 
     def build_acknowledgement_template(self, *, session_id: str, turn_id: str) -> dict[str, Any]:
         required_event = self.store.latest_event(session_id, "docs.required", turn_id)
@@ -415,8 +501,54 @@ class HarnessRuntime:
         )
         return acknowledgement
 
+    def resolve_clarification(
+        self,
+        *,
+        session_id: str,
+        turn_id: str,
+        clarification_response: str,
+    ) -> dict[str, Any]:
+        if not clarification_response.strip():
+            raise ClarificationRequiredError("Clarification response must not be empty.")
+        requirement_analysis = self._require_analysis_completed(session_id=session_id, turn_id=turn_id)
+        pending = self.pending_clarification(session_id=session_id, turn_id=turn_id)
+        if pending is None:
+            raise ClarificationRequiredError("No pending clarification exists for this turn.")
+        turn = self.store.latest_event(session_id, "turn.started", turn_id)
+        if turn is None:
+            raise RuntimeError("Turn is incomplete.")
+        effective_input = merged_user_input(turn["payload"]["user_input"], clarification_response)
+        resolved_payload = {
+            "turn_id": turn_id,
+            "category": pending["category"],
+            "response": clarification_response.strip(),
+            "merged_user_input": effective_input,
+            "fast_start_paths": pending.get("fast_start_paths", []),
+        }
+        self.store.emit_event(session_id, "clarification.resolved", resolved_payload)
+        updated_memory = self.memory.load()
+        required_payload, planner_payload = self._emit_docs_and_planner(
+            session_id=session_id,
+            turn_id=turn_id,
+            requirement_analysis=requirement_analysis,
+            requirement_memory=updated_memory,
+            user_input=effective_input,
+            target_paths=turn["payload"]["target_paths"],
+        )
+        return {
+            "session_id": session_id,
+            "turn_id": turn_id,
+            "status": "clarification_resolved",
+            "clarification": resolved_payload,
+            "required_documents": required_payload,
+            "acknowledgement_template": self.gate.build_ack_template(required_payload),
+            "planner_result": planner_payload,
+            "requirement_memory": updated_memory,
+            "requirement_analysis": requirement_analysis,
+        }
+
     def run_implementer(self, *, session_id: str, turn_id: str) -> dict[str, Any]:
-        self._require_analysis_completed(session_id=session_id, turn_id=turn_id)
+        self._require_turn_ready_for_execution(session_id=session_id, turn_id=turn_id)
         self.gate.ensure_open(session_id, turn_id)
         turn = self.store.latest_event(session_id, "turn.started", turn_id)
         required = self.store.latest_event(session_id, "docs.required", turn_id)
@@ -432,7 +564,11 @@ class HarnessRuntime:
         packet = build_packet(
             role="implementer",
             turn_id=turn_id,
-            user_input=turn["payload"]["user_input"],
+            user_input=self._effective_user_input(
+                session_id=session_id,
+                turn_id=turn_id,
+                fallback=turn["payload"]["user_input"],
+            ),
             target_paths=turn["payload"]["target_paths"],
             required_documents=required["payload"]["documents"],
             requirement_memory=self.memory.load(),
@@ -465,7 +601,7 @@ class HarnessRuntime:
         target_paths: list[str],
         agent_run_id: str | None = None,
     ) -> dict[str, Any]:
-        self._require_analysis_completed(session_id=session_id, turn_id=turn_id)
+        self._require_turn_ready_for_execution(session_id=session_id, turn_id=turn_id)
         return self.tool_gateway.execute(
             session_id=session_id,
             turn_id=turn_id,
@@ -475,7 +611,7 @@ class HarnessRuntime:
         )
 
     def run_reviewer(self, *, session_id: str, turn_id: str) -> dict[str, Any]:
-        self._require_analysis_completed(session_id=session_id, turn_id=turn_id)
+        self._require_turn_ready_for_execution(session_id=session_id, turn_id=turn_id)
         turn = self.store.latest_event(session_id, "turn.started", turn_id)
         required = self.store.latest_event(session_id, "docs.required", turn_id)
         if turn is None or required is None:
@@ -491,7 +627,11 @@ class HarnessRuntime:
         packet = build_packet(
             role="reviewer",
             turn_id=turn_id,
-            user_input=turn["payload"]["user_input"],
+            user_input=self._effective_user_input(
+                session_id=session_id,
+                turn_id=turn_id,
+                fallback=turn["payload"]["user_input"],
+            ),
             target_paths=turn["payload"]["target_paths"],
             required_documents=required["payload"]["documents"],
             requirement_memory=self.memory.load(),
@@ -504,7 +644,11 @@ class HarnessRuntime:
             browser_result = self.browser_review.review(
                 session_id=session_id,
                 turn_id=turn_id,
-                user_input=turn["payload"]["user_input"],
+                user_input=self._effective_user_input(
+                    session_id=session_id,
+                    turn_id=turn_id,
+                    fallback=turn["payload"]["user_input"],
+                ),
                 target_paths=turn["payload"]["target_paths"],
                 required_documents=required["payload"]["documents"],
                 agent_run_id=agent_run_id,
@@ -537,7 +681,7 @@ class HarnessRuntime:
         return payload
 
     def run_fixer(self, *, session_id: str, turn_id: str, findings: list[str]) -> dict[str, Any]:
-        self._require_analysis_completed(session_id=session_id, turn_id=turn_id)
+        self._require_turn_ready_for_execution(session_id=session_id, turn_id=turn_id)
         turn = self.store.latest_event(session_id, "turn.started", turn_id)
         required = self.store.latest_event(session_id, "docs.required", turn_id)
         if turn is None or required is None:
@@ -552,7 +696,11 @@ class HarnessRuntime:
         packet = build_packet(
             role="fixer",
             turn_id=turn_id,
-            user_input=turn["payload"]["user_input"],
+            user_input=self._effective_user_input(
+                session_id=session_id,
+                turn_id=turn_id,
+                fallback=turn["payload"]["user_input"],
+            ),
             target_paths=turn["payload"]["target_paths"],
             required_documents=required["payload"]["documents"],
             requirement_memory=self.memory.load(),
@@ -579,11 +727,11 @@ class HarnessRuntime:
         )
 
     def run_quality_review(self, *, session_id: str, turn_id: str) -> dict[str, Any]:
-        self._require_analysis_completed(session_id=session_id, turn_id=turn_id)
+        self._require_turn_ready_for_execution(session_id=session_id, turn_id=turn_id)
         return self.quality.review_turn(session_id=session_id, turn_id=turn_id)
 
     def continue_turn(self, *, session_id: str, turn_id: str) -> dict[str, Any]:
-        self._require_analysis_completed(session_id=session_id, turn_id=turn_id)
+        self._require_turn_ready_for_execution(session_id=session_id, turn_id=turn_id)
         turn = self.store.latest_event(session_id, "turn.started", turn_id)
         if turn is None:
             raise RuntimeError("Turn is incomplete.")

@@ -32,6 +32,25 @@ Use this order:
 6. Add loading, empty, success, error, and disabled states.
 7. Verify accessibility labels and keyboard behavior.
 
+## Overlay Workflow Rule
+
+For user-facing overlays:
+
+- use `src/components/shared/AppDrawer.tsx` instead of importing AntD `Drawer`
+  directly
+- use `src/components/shared/AppModal.tsx` instead of importing AntD `Modal`
+  directly
+
+Reason:
+
+- shared wrappers provide stable project classes for overlay theme rules
+- transparent or glass-like themes can flicker if overlay motion fades the
+  surface on the first frame
+- this is an overlay behavior rule, not only a styling rule
+
+If a new theme changes overlay surface behavior, verify the first visible frame
+of the overlay, not only the final open state.
+
 ## AntD MCP Usage
 
 Use MCP when:

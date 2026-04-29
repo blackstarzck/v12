@@ -38,6 +38,43 @@ If that document is missing, outdated, or insufficient, use the fallback order
 documented inside `docs/ant-design/08-theme-architecture.md` and update
 conflicting local docs before finalizing work.
 
+## Theme Clarification Gate
+
+Before implementing, planning, or broadly inspecting a request that changes
+theme behavior, theme tokens, component surfaces, appearance modes, or any UI
+request that appears to require theme changes, stop and confirm the user's exact
+intent first.
+
+This confirmation step is required even when the request already mentions a
+component or a theme-related term.
+
+Ask the user to confirm at least:
+
+1. scope: app-wide, one component family, one page, or one local section
+2. target surface: which component, page, or visual state should change
+3. appearance: light, dark, or both
+4. implementation layer: global token, component token, preset, or local scoped override
+5. guardrails: which current values or areas must not change
+
+Before that confirmation is resolved:
+
+- do not implement
+- do not write a plan that assumes global scope
+- do not scan unrelated pages or components
+
+The first-pass reading scope for theme work is limited to:
+
+1. `docs/harness/theme-fast-start.md`
+2. `docs/ant-design/08-theme-architecture.md`
+3. `src/theme/**`
+4. `src/main.tsx`
+
+Expand beyond that initial scope only when:
+
+- the confirmed request names a specific page or component outside the theme layer
+- a local override is already changing the result
+- or verification shows the theme entry points are not the real source of the visual output
+
 ## AntD Component Gate
 
 Before implementing or modifying any user-facing page, section, feature UI, or
