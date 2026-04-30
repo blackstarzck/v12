@@ -1,7 +1,6 @@
 import {
   Alert,
   Button,
-  Card,
   Col,
   Empty,
   Flex,
@@ -13,14 +12,32 @@ import {
   Tag,
   Typography,
 } from 'antd';
+import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { feedbackRecords } from '../data/mockData';
+import { AppCard } from '../components/shared/AppCard';
 import { PageHeader } from '../components/shared/PageHeader';
 import { useLearningStore } from '../stores/useLearningStore';
 import { useUserStore } from '../stores/useUserStore';
 
 interface HomePageProps {
   variant?: 'main' | 'writing';
+}
+
+interface HomeGridItemProps {
+  colSpan: 3 | 4 | 6 | 8 | 12;
+  rowSpan?: 1 | 2;
+  children: ReactNode;
+}
+
+function HomeGridItem({ colSpan, rowSpan = 1, children }: HomeGridItemProps) {
+  return (
+    <div
+      className={`home-grid-item home-grid-item--col-${colSpan} home-grid-item--row-${rowSpan}`}
+    >
+      {children}
+    </div>
+  );
 }
 
 export function HomePage({ variant = 'main' }: HomePageProps) {
@@ -48,87 +65,76 @@ export function HomePage({ variant = 'main' }: HomePageProps) {
         }
       />
 
-      <Row gutter={[16, 16]} align="top">
-        <Col xs={24} xl={15}>
-          <Space direction="vertical" size={16} style={{ width: '100%' }}>
-            <Card>
-              <Space direction="vertical" size={20} style={{ width: '100%' }}>
-                <Alert
-                  showIcon
-                  type="info"
-                  message={`${targetGrade} 목표까지 ${daysLeft}일 남았습니다`}
-                  description="오늘은 쓰기 53번 구조 연습과 읽기 세부 정보 문제를 이어서 풀면 목표 진도에 도달합니다."
-                />
-                <Row gutter={[12, 12]}>
-                  <Col xs={24} md={8}>
-                    <Statistic title="주간 학습 시간" value={weeklyHours} suffix="시간" />
-                  </Col>
-                  <Col xs={24} md={8}>
-                    <Statistic title="푼 문제" value={solvedQuestions} suffix="문제" />
-                  </Col>
-                  <Col xs={24} md={8}>
-                    <Statistic title="출석" value={attendanceDays} suffix="일" />
-                  </Col>
-                </Row>
-                <div>
-                  <Typography.Text strong>목표 경험치</Typography.Text>
-                  <Progress percent={Math.round((xp / 1800) * 100)} status="active" />
-                </div>
-              </Space>
-            </Card>
-
+      <Flex vertical gap={16}>
+        <AppCard>
+          <Space direction="vertical" size={20} style={{ width: '100%' }}>
+            <Alert
+              showIcon
+              type="info"
+              message={`${targetGrade} 목표까지 ${daysLeft}일 남았습니다`}
+              description="오늘은 쓰기 53번 구조 연습과 읽기 세부 정보 문제를 이어서 풀면 목표 진도에 도달합니다."
+            />
             <Row gutter={[12, 12]}>
-              <Col xs={24} md={12}>
-                <Card>
-                  <Typography.Title level={4}>듣기/읽기 집중</Typography.Title>
-                  <Typography.Paragraph type="secondary">
-                    원하는 유형을 선택해 AI 문제를 생성하고 바로 풀이합니다.
-                  </Typography.Paragraph>
-                  <Button type="primary" block onClick={() => navigate('/practice/create')}>
-                    AI 문제 생성 시작하기
-                  </Button>
-                </Card>
+              <Col xs={24} md={8}>
+                <Statistic title="주간 학습 시간" value={weeklyHours} suffix="시간" />
               </Col>
-              <Col xs={24} md={12}>
-                <Card>
-                  <Typography.Title level={4}>쓰기 집중 연습</Typography.Title>
-                  <Typography.Paragraph type="secondary">
-                    51번부터 54번까지 유형과 주제를 고르고 답안을 작성합니다.
-                  </Typography.Paragraph>
-                  <Button type="primary" block onClick={() => navigate('/writing/setup')}>
-                    쓰기 문제 생성하기
-                  </Button>
-                </Card>
+              <Col xs={24} md={8}>
+                <Statistic title="푼 문제" value={solvedQuestions} suffix="문제" />
               </Col>
-              <Col xs={24} md={12}>
-                <Card>
-                  <Typography.Title level={4}>이어하기</Typography.Title>
-                  <Typography.Paragraph type="secondary">
-                    자동 저장된 51번 답안을 이어서 작성합니다.
-                  </Typography.Paragraph>
-                  <Button block onClick={() => navigate('/writing/51')}>
-                    51번 답안 이어쓰기
-                  </Button>
-                </Card>
-              </Col>
-              <Col xs={24} md={12}>
-                <Card>
-                  <Typography.Title level={4}>WEAK POINT</Typography.Title>
-                  <Typography.Paragraph type="secondary">
-                    쓰기 53번 수치 비교와 마무리 문장을 집중 보완합니다.
-                  </Typography.Paragraph>
-                  <Button block onClick={() => navigate('/writing/53')}>
-                    약점 공략 시작
-                  </Button>
-                </Card>
+              <Col xs={24} md={8}>
+                <Statistic title="출석" value={attendanceDays} suffix="일" />
               </Col>
             </Row>
+            <div>
+              <Typography.Text strong>목표 경험치</Typography.Text>
+              <Progress percent={Math.round((xp / 1800) * 100)} status="active" />
+            </div>
           </Space>
-        </Col>
+        </AppCard>
 
-        <Col xs={24} xl={9}>
-          <Space direction="vertical" size={16} style={{ width: '100%' }}>
-            <Card title="영역별 합격 예측">
+        <div className="home-grid">
+          <HomeGridItem colSpan={4}>
+            <AppCard
+              actions={[
+                <Button
+                  key="create-practice"
+                  type="primary"
+                  block
+                  onClick={() => navigate('/practice/create')}
+                >
+                  AI 문제 생성 시작하기
+                </Button>,
+              ]}
+            >
+              <Typography.Title level={4}>듣기/읽기 집중</Typography.Title>
+              <Typography.Paragraph type="secondary">
+                원하는 유형을 선택해 AI 문제를 생성하고 바로 풀이합니다.
+              </Typography.Paragraph>
+            </AppCard>
+          </HomeGridItem>
+
+          <HomeGridItem colSpan={4}>
+            <AppCard
+              actions={[
+                <Button
+                  key="create-writing"
+                  type="primary"
+                  block
+                  onClick={() => navigate('/writing/setup')}
+                >
+                  쓰기 문제 생성하기
+                </Button>,
+              ]}
+            >
+              <Typography.Title level={4}>쓰기 집중 연습</Typography.Title>
+              <Typography.Paragraph type="secondary">
+                51번부터 54번까지 유형과 주제를 고르고 답안을 작성합니다.
+              </Typography.Paragraph>
+            </AppCard>
+          </HomeGridItem>
+
+          <HomeGridItem colSpan={4} rowSpan={2}>
+            <AppCard title="영역별 합격 예측">
               <Space direction="vertical" style={{ width: '100%' }}>
                 {skillScores.map((skill) => (
                   <div key={skill.name}>
@@ -150,9 +156,41 @@ export function HomePage({ variant = 'main' }: HomePageProps) {
                   </div>
                 ))}
               </Space>
-            </Card>
+            </AppCard>
+          </HomeGridItem>
 
-            <Card
+          <HomeGridItem colSpan={4}>
+            <AppCard
+              actions={[
+                <Button key="continue-writing" block onClick={() => navigate('/writing/51')}>
+                  51번 답안 이어쓰기
+                </Button>,
+              ]}
+            >
+              <Typography.Title level={4}>이어하기</Typography.Title>
+              <Typography.Paragraph type="secondary">
+                자동 저장된 51번 답안을 이어서 작성합니다.
+              </Typography.Paragraph>
+            </AppCard>
+          </HomeGridItem>
+
+          <HomeGridItem colSpan={4}>
+            <AppCard
+              actions={[
+                <Button key="start-weak-point" block onClick={() => navigate('/writing/53')}>
+                  약점 공략 시작
+                </Button>,
+              ]}
+            >
+              <Typography.Title level={4}>WEAK POINT</Typography.Title>
+              <Typography.Paragraph type="secondary">
+                쓰기 53번 수치 비교와 마무리 문장을 집중 보완합니다.
+              </Typography.Paragraph>
+            </AppCard>
+          </HomeGridItem>
+
+          <HomeGridItem colSpan={8}>
+            <AppCard
               title="최근 쓰기 피드백"
               extra={
                 <Button type="link" onClick={() => navigate('/writing/feedback')}>
@@ -185,9 +223,11 @@ export function HomePage({ variant = 'main' }: HomePageProps) {
                   )}
                 />
               )}
-            </Card>
+            </AppCard>
+          </HomeGridItem>
 
-            <Card title="소식">
+          <HomeGridItem colSpan={4}>
+            <AppCard title="소식">
               <List
                 dataSource={[
                   '53번 도표 쓰기 신규 평가 기준이 추가됐습니다.',
@@ -195,10 +235,10 @@ export function HomePage({ variant = 'main' }: HomePageProps) {
                 ]}
                 renderItem={(item) => <List.Item>{item}</List.Item>}
               />
-            </Card>
-          </Space>
-        </Col>
-      </Row>
+            </AppCard>
+          </HomeGridItem>
+        </div>
+      </Flex>
     </>
   );
 }

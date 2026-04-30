@@ -15,6 +15,7 @@
 | requirements.analysis_blocked | requirement analyzer | turn_id, reason | emitted when a request cannot be analyzed |
 | docs.required | pre-turn selector | turn_id, doc_ids, digests | hard gate input |
 | docs.acknowledged | runtime or agent bridge | turn_id, doc_ids, digests, constraints | required before execution |
+| antd.api_mapping.completed | runtime or agent bridge | turn_id, visible_data, states, actions, layout_roles, component_mappings, sources, custom_justifications | required before UI implementation tool calls |
 | requirements.updated | runtime | turn_id, intents, matched_docs, suggestions | persistent requirement analysis |
 | agent.started | runtime | turn_id, agent_run_id, role, status | begins one replaceable role execution |
 | agent.assigned | runtime | turn_id, agent_run_id, role, skills | explicit handoff with role skills |

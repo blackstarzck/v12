@@ -58,6 +58,8 @@ Start only with these files unless the confirmed scope requires more:
   - default preset and appearance-specific overrides
 - `src/main.tsx`
   - `ConfigProvider` mount point and runtime theme wiring
+- `src/components/shared/AppCard.tsx`
+  - stable `.app-card` and `.app-surface` hooks for themed Card surfaces
 
 ## Decision Map
 
@@ -67,6 +69,9 @@ Use this quick rule:
   - start in shared global tokens or a preset
 - one Ant Design component family across the app
   - start in `src/theme/components/shared.ts`
+- themed Card surface or Card child component context
+  - use `src/components/shared/AppCard.tsx` for the stable hook and put the
+    theme-specific styling in the active preset
 - one named theme or appearance preset
   - start in `src/theme/presets/`
 - one local exception after explicit confirmation

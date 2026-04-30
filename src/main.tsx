@@ -31,17 +31,30 @@ function Root() {
   }, [activeTheme.antd, activeTheme.name, appearance]);
 
   return (
-    <ConfigProvider
-      locale={koKR}
-      theme={activeTheme.antd}
-      card={themeName === 'liquidGlass' ? { variant: 'borderless' } : undefined}
-    >
-      <AntApp>
-        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <App />
-        </BrowserRouter>
-      </AntApp>
-    </ConfigProvider>
+    <>
+      {activeTheme.globalStyles ? (
+        <style data-app-theme-global-styles>{activeTheme.globalStyles}</style>
+      ) : null}
+      <ConfigProvider
+        locale={koKR}
+        theme={{
+          ...activeTheme.antd,
+          token: {
+            ...activeTheme.antd.token,
+            controlHeightSM: 28,
+            controlHeight: 36,
+            controlHeightLG: 44,
+          },
+        }}
+        card={themeName === 'liquidGlass' ? { variant: 'borderless' } : undefined}
+      >
+        <AntApp>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <App />
+          </BrowserRouter>
+        </AntApp>
+      </ConfigProvider>
+    </>
   );
 }
 

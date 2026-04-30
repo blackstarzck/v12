@@ -156,9 +156,10 @@ Recommended practical pattern:
 1. start the turn
 2. resolve clarification if the harness pauses the turn
 3. acknowledge the required docs
-4. perform the real edits and checks
-5. run the pre-final audit
-6. summarize the outcome
+4. record AntD API mapping before UI implementation when the turn affects visible UI
+5. perform the real edits and checks
+6. run the pre-final audit
+7. summarize the outcome
 
 ## Step 7: Run The Pre-Final Audit
 
@@ -209,8 +210,9 @@ For UI or theme work, use this minimum flow:
 3. `ack_required_docs.py --template`
 4. fill in constraints
 5. `ack_required_docs.py --input ...`
-6. do the implementation work
-7. `pre_final_audit.py`
+6. record `antd.api_mapping.completed` before visible UI implementation
+7. do the implementation work
+8. `pre_final_audit.py`
 
 If the task is small and read-only, you do not need to force the full flow.
 If the task changes UI, theme, shared components, or project rules, treat this

@@ -77,6 +77,8 @@ We keep:
 - one preset file per theme
 - separate global and component shared rules
 - a default preset that stays close to stock Ant Design
+- optional preset-owned global styles for theme-specific structure that AntD
+  tokens cannot express
 
 ## Current Theme Folder
 
@@ -119,6 +121,7 @@ src/theme/
 - `src/theme/create-theme.ts`
   - builds the final `ThemeConfig` from shared rules plus a preset
   - merges global token values and component token values
+  - carries optional preset-owned global styles into the active theme definition
   - applies the light or dark AntD algorithm automatically
 
 ### Shared theme inputs
@@ -139,6 +142,11 @@ src/theme/
   - the current default theme preset
   - should stay close to empty
   - its job is to say "use light mode" or "use dark mode", not to restate Ant Design defaults
+- `src/theme/presets/liquid-glass.ts`
+  - owns both the Liquid Glass AntD token overrides and the Liquid Glass
+    structural global styles
+  - keep pseudo-elements, backdrop filters, overlay first-frame rules, and
+    Liquid Glass CSS variables here instead of in `src/styles/global.css`
 
 ### Types
 
@@ -160,8 +168,10 @@ This gives the app one source of truth at runtime even though the files are spli
 
 ## Overlay Surface Rule
 
-`Drawer` and `Modal` are not just visual values. They also have an opening
-lifecycle.
+`Card`, `Drawer`, and `Modal` are not just visual values. They are shared app
+surfaces that themes may need to style in context.
+
+`Drawer` and `Modal` also have an opening lifecycle.
 
 For themes with transparent, blurred, or glass-like surfaces, the first frame
 of an overlay matters. If the overlay motion fades the surface on entry, users
@@ -172,18 +182,42 @@ Treat that as an overlay behavior rule, not only a token rule.
 
 Project rule:
 
+- user-facing `Card` surfaces should use `src/components/shared/AppCard.tsx`
+  instead of importing AntD `Card` directly
 - user-facing `Drawer` components should use `src/components/shared/AppDrawer.tsx`
 - user-facing `Modal` components should use `src/components/shared/AppModal.tsx`
-- those wrappers provide stable project classes for overlay theme behavior
+- those wrappers provide stable project classes for surface and overlay theme
+  behavior
 - theme presets still own the visual values
-- global CSS may still provide structural layers such as blur or highlight when
-  AntD tokens cannot express them
+- preset-owned global styles may provide structural layers such as blur or
+  highlight when AntD tokens cannot express them
 
 In short:
 
 - tokens decide the material
-- shared wrappers provide the stable overlay hook
-- CSS decides the extra glass structure only when AntD tokens are not enough
+- shared wrappers provide stable hooks such as `.app-card`, `.app-surface`,
+  `.app-drawer`, and `.app-modal`
+- preset-owned global styles decide extra surface structure only when AntD
+  tokens are not enough
+
+Do not create theme-named component forks such as `LiquidGlassCard` or
+`CustomThemeACard`. Create one role-based shared wrapper such as `AppCard`, then
+let each theme preset style that stable hook.
+
+When child AntD components need to adapt to a themed surface, preserve AntD
+defaults first. If a confirmed product requirement needs a contextual override,
+scope that rule to the surface hook:
+
+```css
+html[data-theme='liquidGlass'] .app-card .ant-tag {
+  /* Liquid Glass Card context only */
+}
+```
+
+This keeps the component API stable while allowing each preset to define how
+inputs, tags, or other AntD children behave inside the surface. Do not add
+Card-scoped Button styling unless the request explicitly calls for a non-default
+Button appearance.
 
 ## Global vs Component Rules
 

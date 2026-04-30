@@ -1,4 +1,15 @@
-import { Alert, Button, Card, Empty, Input, List, Select, Space, Tag, Typography } from 'antd';
+import {
+  Alert,
+  Button,
+  Empty,
+  Input,
+  List,
+  Select,
+  Space,
+  Tag,
+  Typography,
+} from 'antd';
+import { AppCard } from '../components/shared/AppCard';
 import { PageHeader } from '../components/shared/PageHeader';
 
 const savedProblems = [
@@ -29,7 +40,7 @@ export function LibraryPage() {
           description="쓰기와 읽기에서 자주 틀린 유형을 먼저 복습하도록 정렬했습니다."
           action={<Button>전체 무작위 복습</Button>}
         />
-        <Card>
+        <AppCard>
           <Space wrap style={{ marginBottom: 16 }}>
             <Input.Search aria-label="저장 문제 검색" placeholder="문제 제목 검색…" />
             <Select
@@ -67,7 +78,7 @@ export function LibraryPage() {
               </List.Item>
             )}
           />
-        </Card>
+        </AppCard>
       </Space>
     </>
   );

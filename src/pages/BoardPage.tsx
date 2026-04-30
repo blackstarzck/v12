@@ -1,5 +1,15 @@
-import { Button, Card, Input, List, Space, Table, Tabs, Tag, Typography } from 'antd';
+import {
+  Button,
+  Input,
+  List,
+  Space,
+  Table,
+  Tabs,
+  Tag,
+  Typography,
+} from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { AppCard } from '../components/shared/AppCard';
 import { PageHeader } from '../components/shared/PageHeader';
 import { noticeItems } from '../data/mockData';
 
@@ -12,7 +22,7 @@ export function BoardPage() {
         title="게시판"
         description="공지사항과 이벤트를 구분해 확인합니다."
       />
-      <Card>
+      <AppCard>
         <Tabs
           items={[
             {
@@ -85,7 +95,7 @@ export function BoardPage() {
             },
           ]}
         />
-      </Card>
+      </AppCard>
     </>
   );
 }

@@ -90,6 +90,14 @@ Do not create custom UI first. Check whether Ant Design already provides the
 component or pattern before writing custom markup, custom interaction logic, or
 custom layout CSS.
 
+Before implementing visible UI from IA documents or user requirements, extract
+the visible data, states, actions, and layout roles first. For each selected
+AntD component, inspect the official component API through AntD MCP, AntD CLI,
+AntD LLM-ready docs, or official component docs. Map the extracted requirements
+to built-in props, slots, variants, semantic DOM hooks, and design tokens before
+writing custom markup, custom CSS, or custom interaction logic. UI
+implementation must not proceed until this AntD API mapping is recorded.
+
 If those local docs are missing, outdated, or insufficient, use AntD MCP or the
 official Ant Design component docs before inventing a custom component or
 pattern.

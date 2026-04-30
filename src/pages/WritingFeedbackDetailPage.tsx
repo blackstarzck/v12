@@ -1,7 +1,6 @@
 import {
   Alert,
   Button,
-  Card,
   Col,
   Collapse,
   Descriptions,
@@ -15,6 +14,7 @@ import {
   Typography,
 } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
+import { AppCard } from '../components/shared/AppCard';
 import { PageHeader } from '../components/shared/PageHeader';
 import { feedbackRecords } from '../data/mockData';
 
@@ -59,7 +59,7 @@ export function WritingFeedbackDetailPage() {
       <Row gutter={[16, 16]} align="top">
         <Col xs={24} lg={16}>
           <Space direction="vertical" size={16} style={{ width: '100%' }}>
-            <Card>
+            <AppCard>
               <Space direction="vertical" size={16} style={{ width: '100%' }}>
                 <Space wrap size={24}>
                   <Statistic title="점수" value={record.score} suffix={`/ ${record.total}`} />
@@ -73,15 +73,15 @@ export function WritingFeedbackDetailPage() {
                   status={record.status === 'Needs review' ? 'exception' : 'active'}
                 />
               </Space>
-            </Card>
+            </AppCard>
 
             <Alert type="info" showIcon message="AI 총평" description={record.summary} />
 
-            <Card title="문제 지문">
+            <AppCard title="문제 지문">
               <Typography.Paragraph>
                 시급한 학습자의 복습 방법 변화를 설명한 그래프를 보고, 가장 큰 변화와 그 이유를 설명하시오.
               </Typography.Paragraph>
-            </Card>
+            </AppCard>
 
             <Tabs
               items={[
@@ -133,15 +133,15 @@ export function WritingFeedbackDetailPage() {
 
         <Col xs={24} lg={8}>
           <Space direction="vertical" size={16} style={{ width: '100%' }}>
-            <Card title="기본 정보">
+            <AppCard title="기본 정보">
               <Descriptions column={1} size="small">
                 <Descriptions.Item label="문항">{record.type}</Descriptions.Item>
                 <Descriptions.Item label="제출일">{record.date}</Descriptions.Item>
                 <Descriptions.Item label="우선순위">중상</Descriptions.Item>
               </Descriptions>
-            </Card>
+            </AppCard>
 
-            <Card title="다음 행동">
+            <AppCard title="다음 행동">
               <Space direction="vertical" style={{ width: '100%' }}>
                 <Button type="primary" block onClick={() => navigate('/writing/53')}>
                   비슷한 주제로 다시 쓰기
@@ -152,7 +152,7 @@ export function WritingFeedbackDetailPage() {
                   피드백 숨기기
                 </Button>
               </Space>
-            </Card>
+            </AppCard>
           </Space>
         </Col>
       </Row>

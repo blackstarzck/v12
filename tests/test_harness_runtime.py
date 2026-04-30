@@ -11,6 +11,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from generated_harness import (
+    AntdApiMappingError,
     CODEX_HOST_TOOL_EXAMPLES,
     ClarificationRequiredError,
     CodexHostGuard,
@@ -1127,6 +1128,93 @@ class HarnessRuntimeTests(unittest.TestCase):
                 documents=[{"doc_id": "backend-rules", "constraints": []}],
             )
 
+    def test_ui_write_blocks_until_antd_api_mapping_is_recorded(self) -> None:
+        start = self.runtime.start_turn(
+            user_input="Fix the frontend screen state",
+            target_paths=["src/frontend/screen.tsx"],
+        )
+        self.runtime.acknowledge_required_docs(
+            session_id=start["session_id"],
+            turn_id=start["turn_id"],
+            auto=True,
+        )
+
+        with self.assertRaises(AntdApiMappingError):
+            self.runtime.simulate_write(
+                session_id=start["session_id"],
+                turn_id=start["turn_id"],
+                target_paths=["src/frontend/screen.tsx"],
+            )
+        blocked = self.runtime.store.latest_event(start["session_id"], "tool.blocked", start["turn_id"])
+        self.assertEqual(blocked["payload"]["reason"], "antd api mapping not completed")
+
+        mapping = self.runtime.record_antd_api_mapping(
+            session_id=start["session_id"],
+            turn_id=start["turn_id"],
+            visible_data=["screen title", "loading copy"],
+            states=["loading", "empty", "error"],
+            actions=["retry"],
+            layout_roles=["main content"],
+            component_mappings=[
+                {
+                    "component": "Card",
+                    "source_requirements": ["screen title", "loading state"],
+                    "prop_mappings": ["title <- screen title", "loading <- loading state"],
+                }
+            ],
+            sources=["antd_info Card"],
+        )
+        self.assertEqual(mapping["component_mappings"][0]["component"], "Card")
+
+        result = self.runtime.simulate_write(
+            session_id=start["session_id"],
+            turn_id=start["turn_id"],
+            target_paths=["src/frontend/screen.tsx"],
+        )
+        self.assertEqual(result["status"], "noop")
+
+    def test_ui_codex_apply_patch_blocks_until_antd_api_mapping_is_recorded(self) -> None:
+        start = self.runtime.start_turn(
+            user_input="Fix the frontend screen state",
+            target_paths=["src/frontend/screen.tsx"],
+        )
+        self.runtime.acknowledge_required_docs(
+            session_id=start["session_id"],
+            turn_id=start["turn_id"],
+            auto=True,
+        )
+
+        with self.assertRaises(AntdApiMappingError):
+            self.runtime.codex.begin(
+                session_id=start["session_id"],
+                turn_id=start["turn_id"],
+                codex_tool_name="apply_patch",
+                payload={"changed_paths": ["src/frontend/screen.tsx"]},
+            )
+
+        self.runtime.record_antd_api_mapping(
+            session_id=start["session_id"],
+            turn_id=start["turn_id"],
+            visible_data=["primary status"],
+            states=["success"],
+            actions=["save"],
+            layout_roles=["toolbar"],
+            component_mappings=[
+                {
+                    "component": "Button",
+                    "source_requirements": ["save action"],
+                    "prop_mappings": ["type='primary' <- primary save action"],
+                }
+            ],
+        )
+        authorization = self.runtime.codex.begin(
+            session_id=start["session_id"],
+            turn_id=start["turn_id"],
+            codex_tool_name="apply_patch",
+            payload={"changed_paths": ["src/frontend/screen.tsx"]},
+        )
+        self.assertEqual(authorization["tool_name"], "git.apply_patch")
+
     def test_previous_memory_does_not_force_unrelated_doc_by_itself(self) -> None:
         self.runtime.start_turn(
             user_input="Fix the frontend screen states",
@@ -1713,6 +1801,35 @@ class HarnessRuntimeTests(unittest.TestCase):
         )
         self.assertEqual(result.status, "failed")
         self.assertTrue(any(finding["code"] == "gated_tool_without_ack" for finding in result.findings))
+
+    def test_flow_verifier_detects_ui_tool_without_antd_api_mapping(self) -> None:
+        start = self.runtime.start_turn(
+            user_input="Fix the frontend screen state",
+            target_paths=["src/frontend/screen.tsx"],
+        )
+        self.runtime.acknowledge_required_docs(
+            session_id=start["session_id"],
+            turn_id=start["turn_id"],
+            auto=True,
+        )
+        self.runtime.store.emit_event(
+            start["session_id"],
+            "tool.called",
+            {
+                "turn_id": start["turn_id"],
+                "tool_call_id": "tool_ui",
+                "agent_run_id": "agent_ui",
+                "tool_name": "repo.write",
+                "input": {"target_paths": ["src/frontend/screen.tsx"]},
+                "requires_gate": True,
+            },
+        )
+        result = ExecutionFlowVerifier(self.runtime.store).verify_turn(
+            session_id=start["session_id"],
+            turn_id=start["turn_id"],
+        )
+        self.assertEqual(result.status, "failed")
+        self.assertTrue(any(finding["code"] == "ui_tool_without_antd_mapping" for finding in result.findings))
 
     def test_flow_verifier_detects_invalid_sandbox_lifecycle(self) -> None:
         start = self.runtime.start_turn(

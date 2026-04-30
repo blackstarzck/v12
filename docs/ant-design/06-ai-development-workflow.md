@@ -19,23 +19,37 @@ project.
    - exception page
    - exam workspace
 5. Choose AntD components before writing custom UI.
+6. Complete the AntD component API mapping before implementation:
+   - extract visible data, states, actions, and layout roles from IA documents
+     and user requirements
+   - list the selected AntD components for each visible UI area
+   - inspect each selected component's official API through AntD MCP, AntD CLI,
+     AntD LLM-ready docs, or official component docs
+   - map the extracted requirements to built-in props, slots, variants,
+     semantic DOM hooks, and design tokens before custom implementation
+   - record why any remaining custom markup, custom CSS, or custom interaction
+     logic is necessary
+   - do not proceed to UI implementation until this mapping is recorded
 
 ## During Coding
 
 Use this order:
 
-1. Structure with AntD layout and components.
-2. Configure global theme tokens.
-3. Use component tokens for targeted customization.
-4. Add local CSS only for project layout glue.
-5. Add responsive behavior.
-6. Add loading, empty, success, error, and disabled states.
-7. Verify accessibility labels and keyboard behavior.
+1. Implement from the completed AntD component API mapping.
+2. Structure with AntD layout and components.
+3. Configure global theme tokens.
+4. Use component tokens for targeted customization.
+5. Add local CSS only for project layout glue.
+6. Add responsive behavior.
+7. Add loading, empty, success, error, and disabled states.
+8. Verify accessibility labels and keyboard behavior.
 
 ## Overlay Workflow Rule
 
-For user-facing overlays:
+For user-facing surfaces and overlays:
 
+- use `src/components/shared/AppCard.tsx` instead of importing AntD `Card`
+  directly for user-facing Card surfaces
 - use `src/components/shared/AppDrawer.tsx` instead of importing AntD `Drawer`
   directly
 - use `src/components/shared/AppModal.tsx` instead of importing AntD `Modal`
@@ -43,7 +57,11 @@ For user-facing overlays:
 
 Reason:
 
-- shared wrappers provide stable project classes for overlay theme rules
+- shared wrappers provide stable project classes for surface and overlay theme
+  rules
+- theme presets can scope contextual surface styling to stable hooks such as
+  `.app-card`, while preserving AntD child component defaults unless there is a
+  confirmed product reason to override them
 - transparent or glass-like themes can flicker if overlay motion fades the
   surface on the first frame
 - this is an overlay behavior rule, not only a styling rule
@@ -51,10 +69,15 @@ Reason:
 If a new theme changes overlay surface behavior, verify the first visible frame
 of the overlay, not only the final open state.
 
+Do not create theme-named wrappers such as `LiquidGlassCard` or
+`CustomThemeACard`. Keep one role-based wrapper and let each theme preset own
+the visual expression.
+
 ## AntD MCP Usage
 
 Use MCP when:
 
+- Starting the required AntD component API mapping for visible UI work.
 - A component prop is uncertain.
 - A demo pattern is needed.
 - A design token is needed.
@@ -93,7 +116,8 @@ Rules:
 
 - `index.ts` is the public entry point.
 - `registry.ts` registers available named themes.
-- `presets/` contains optional theme-specific overrides. The default preset should
+- `presets/` contains optional theme-specific overrides and, when AntD tokens are
+  insufficient, preset-owned structural global styles. The default preset should
   stay close to empty so the app uses stock Ant Design decisions first.
 - `global/` contains shared seed tokens and algorithm helpers.
 - `components/` contains shared component token rules only when the project has a
@@ -104,6 +128,7 @@ This theme system should still centrally own:
 - `token`
 - `components`
 - optional algorithm choice
+- optional preset-owned global styles
 - font family
 
 Do not spread theme decisions across unrelated components.

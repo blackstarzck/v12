@@ -2,7 +2,6 @@ import {
   Alert,
   App as AntdApp,
   Button,
-  Card,
   Col,
   Flex,
   Form,
@@ -15,6 +14,7 @@ import {
   Typography,
 } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { AppCard } from '../components/shared/AppCard';
 import { PageHeader } from '../components/shared/PageHeader';
 import { usePracticeStore } from '../stores/usePracticeStore';
 import type { PracticeArea, ProblemType, TopikLevel } from '../types/domain';
@@ -87,7 +87,7 @@ export function PracticeCreatePage() {
 
       <Row gutter={[16, 16]} align="top">
         <Col xs={24} lg={16}>
-          <Card>
+          <AppCard>
             <Form layout="vertical" requiredMark="optional">
               <Form.Item label="학습 영역" required>
                 <Radio.Group
@@ -150,7 +150,7 @@ export function PracticeCreatePage() {
                 AI 문제 생성 시작하기
               </Button>
             </Form>
-          </Card>
+          </AppCard>
         </Col>
 
         <Col xs={24} lg={8}>
@@ -166,7 +166,7 @@ export function PracticeCreatePage() {
               }
             />
 
-            <Card title="선택한 유형 미리보기">
+            <AppCard title="선택한 유형 미리보기">
               {selectedType ? (
                 <Space direction="vertical">
                   <Tag color="processing">{selectedType.label}</Tag>
@@ -180,7 +180,7 @@ export function PracticeCreatePage() {
                   문제 유형을 고르면 풀이 방식과 예시가 여기에 표시됩니다.
                 </Typography.Text>
               )}
-            </Card>
+            </AppCard>
           </Space>
         </Col>
       </Row>

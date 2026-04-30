@@ -2,7 +2,6 @@ import {
   Alert,
   App as AntdApp,
   Button,
-  Card,
   Col,
   Collapse,
   Input,
@@ -18,6 +17,7 @@ import { SaveOutlined, SendOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppModal } from '../components/shared/AppModal';
+import { AppCard } from '../components/shared/AppCard';
 import { PageHeader } from '../components/shared/PageHeader';
 import { writingGuides } from '../data/mockData';
 import { useWritingStore } from '../stores/useWritingStore';
@@ -56,7 +56,7 @@ export function WritingPracticePage({ type }: WritingPracticePageProps) {
 
       <Row gutter={[16, 16]} align="top">
         <Col xs={24} lg={16}>
-          <Card>
+          <AppCard>
             <Space direction="vertical" size={18} style={{ width: '100%' }}>
               <Alert type="info" showIcon message={guide.prompt} />
               <Tabs
@@ -97,19 +97,19 @@ export function WritingPracticePage({ type }: WritingPracticePageProps) {
                 />
               )}
             </Space>
-          </Card>
+          </AppCard>
         </Col>
 
         <Col xs={24} lg={8}>
           <Space direction="vertical" size={16} style={{ width: '100%' }}>
-            <Card title="작성 상태">
+            <AppCard title="작성 상태">
               <Progress percent={progress} />
               <Typography.Text type="secondary">
                 현재 {draft.trim().length}자를 작성했습니다.
               </Typography.Text>
-            </Card>
+            </AppCard>
 
-            <Card title="추천 자료">
+            <AppCard title="추천 자료">
               <Collapse
                 defaultActiveKey={['expressions']}
                 items={[
@@ -151,7 +151,7 @@ export function WritingPracticePage({ type }: WritingPracticePageProps) {
                   },
                 ]}
               />
-            </Card>
+            </AppCard>
           </Space>
         </Col>
       </Row>

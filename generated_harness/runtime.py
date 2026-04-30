@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from .agents import AgentExecutor, DefaultAgentExecutor, build_packet
+from .antd_api_mapping import AntdApiMappingGate
 from .browser_review import BrowserReviewHandler, BrowserReviewRunner
 from .checklists import build_post_run_questions
 from .clarification import (
@@ -49,7 +50,13 @@ class HarnessRuntime:
         self.skills = SkillRegistry(self.repo_root)
         self.gate = DocumentGate(self.repo_root, self.store)
         self.analyzer = RequirementAnalyzer(self.repo_root, self.store, self.registry, self.memory, self.skills)
-        self.tool_gateway = ToolGateway(store=self.store, gate=self.gate, handlers=tool_handlers)
+        self.antd_api_mapping = AntdApiMappingGate(self.store)
+        self.tool_gateway = ToolGateway(
+            store=self.store,
+            gate=self.gate,
+            handlers=tool_handlers,
+            pre_execution_gate=self.antd_api_mapping.ensure_completed,
+        )
         self.codex = CodexToolAdapter(self.tool_gateway)
         self.sandbox = SandboxAdapter(
             self.repo_root,
@@ -500,6 +507,35 @@ class HarnessRuntime:
             note=acknowledgement["note"],
         )
         return acknowledgement
+
+    def record_antd_api_mapping(
+        self,
+        *,
+        session_id: str,
+        turn_id: str,
+        visible_data: list[str],
+        states: list[str],
+        actions: list[str],
+        layout_roles: list[str],
+        component_mappings: list[dict[str, Any]],
+        sources: list[str] | None = None,
+        custom_justifications: list[str] | None = None,
+        agent_run_id: str | None = None,
+    ) -> dict[str, Any]:
+        self._require_turn_ready_for_execution(session_id=session_id, turn_id=turn_id)
+        self.gate.ensure_open(session_id, turn_id)
+        return self.antd_api_mapping.record_completed(
+            session_id=session_id,
+            turn_id=turn_id,
+            visible_data=visible_data,
+            states=states,
+            actions=actions,
+            layout_roles=layout_roles,
+            component_mappings=component_mappings,
+            sources=sources,
+            custom_justifications=custom_justifications,
+            agent_run_id=agent_run_id,
+        )
 
     def resolve_clarification(
         self,

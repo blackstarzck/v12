@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from .antd_api_mapping import AntdApiMappingGate
 from .session_store import FileSessionStore
 
 
@@ -38,6 +39,7 @@ class ExecutionFlowVerifier:
 
         self._check_required_order(first_sequence, findings)
         self._check_clarification(events, first_sequence, findings)
+        self._check_antd_api_mapping(events, findings, session_id=session_id, turn_id=turn_id)
         self._check_agents(events, findings)
         self._check_tools(
             events,
@@ -140,6 +142,53 @@ class ExecutionFlowVerifier:
                         message="Agent terminal event has no earlier agent.started event.",
                         event=event,
                     )
+
+    def _check_antd_api_mapping(
+        self,
+        events: list[dict[str, Any]],
+        findings: list[dict[str, Any]],
+        *,
+        session_id: str,
+        turn_id: str,
+    ) -> None:
+        gate = AntdApiMappingGate(self.store)
+        mapping_sequences = [
+            int(event["sequence"])
+            for event in events
+            if event["event_type"] == "antd.api_mapping.completed"
+        ]
+        ack_sequences = [
+            int(event["sequence"])
+            for event in events
+            if event["event_type"] == "docs.acknowledged"
+        ]
+        for sequence in mapping_sequences:
+            if ack_sequences and not any(ack_sequence < sequence for ack_sequence in ack_sequences):
+                self._add_finding(
+                    findings,
+                    code="antd_mapping_before_ack",
+                    message="antd.api_mapping.completed must appear after docs.acknowledged when required documents exist.",
+                )
+
+        for event in events:
+            if event["event_type"] != "tool.called":
+                continue
+            payload = event.get("payload", {})
+            if payload.get("requires_gate") is not True:
+                continue
+            sequence = int(event["sequence"])
+            if gate.requires_mapping(
+                session_id=session_id,
+                turn_id=turn_id,
+                tool_name=str(payload.get("tool_name", "")),
+                payload=payload.get("input", {}),
+            ) and not any(mapping_sequence < sequence for mapping_sequence in mapping_sequences):
+                self._add_finding(
+                    findings,
+                    code="ui_tool_without_antd_mapping",
+                    message="UI implementation tool call has no earlier antd.api_mapping.completed event.",
+                    event=event,
+                )
 
     def _check_tools(
         self,

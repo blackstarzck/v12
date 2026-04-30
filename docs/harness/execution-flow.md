@@ -28,43 +28,47 @@ work with a new `agent_run_id`, `tool_call_id`, or `sandbox_ref`.
 6. Emit `docs.required` with the policy-selected documents.
 7. Block mutating tools and sandbox work until `docs.acknowledged` exists for
    the current turn.
-8. Start role work with `agent.started`, `agent.assigned`, and
+8. For UI implementation turns, emit `antd.api_mapping.completed` before any
+   implementation tool call. The mapping records visible data, states, actions,
+   layout roles, selected AntD components, API/prop mappings, sources, and
+   custom implementation justifications.
+9. Start role work with `agent.started`, `agent.assigned`, and
    `agent.heartbeat`.
-9. Complete, fail, or time out each role with one of `agent.completed`,
-   `agent.failed`, or `agent.timed_out`.
-10. Wrap Codex-facing host tools with `runtime.codex.recorded_call(...)` or
-   `runtime.codex.tool_call(...)`.
-11. Record every tool as `tool.called`, then `tool.completed` or `tool.failed`
-   with the same `tool_call_id`.
-   A turn must not close while a `tool.called` event is still missing its
-   terminal event.
-12. Denied tools record `tool.blocked` and do not emit `tool.called`.
-13. Record sandbox work through `sandbox.provisioned`, `sandbox.executed`,
+10. Complete, fail, or time out each role with one of `agent.completed`,
+    `agent.failed`, or `agent.timed_out`.
+11. Wrap Codex-facing host tools with `runtime.codex.recorded_call(...)` or
+    `runtime.codex.tool_call(...)`.
+12. Record every tool as `tool.called`, then `tool.completed` or `tool.failed`
+    with the same `tool_call_id`.
+    A turn must not close while a `tool.called` event is still missing its
+    terminal event.
+13. Denied tools record `tool.blocked` and do not emit `tool.called`.
+14. Record sandbox work through `sandbox.provisioned`, `sandbox.executed`,
     `sandbox.failed`, `sandbox.disposed`, and `sandbox.blocked` using
     `sandbox_ref`.
-14. Do not provision or execute a sandbox before required-document
+15. Do not provision or execute a sandbox before required-document
     acknowledgement when required documents exist.
-15. Do not provision or execute a sandbox before `clarification.resolved` on
+16. Do not provision or execute a sandbox before `clarification.resolved` on
     clarification-gated turns.
-16. Do not pass credentials, tokens, passwords, or secret-looking payload keys
+17. Do not pass credentials, tokens, passwords, or secret-looking payload keys
     into sandbox resources or sandbox execution input.
-17. Record changed files as `repo.changed` with the responsible
+18. Record changed files as `repo.changed` with the responsible
     `tool_call_id`. A changed-file event without `tool_call_id` is treated as
     an unwrapped host-tool change.
-18. Record reviewer validation as `validation.completed`. When validation calls
+19. Record reviewer validation as `validation.completed`. When validation calls
     an external browser tool, route it through `validator.browser` so
     `tool.called`, `tool.completed`, or `tool.failed` share the same
     `tool_call_id`.
     If the Playwright MCP run happens outside the Python runtime, emit
     `validation.requested` first and later record the MCP result through the
     `validator.browser` bridge.
-19. Record quality review as `quality.review_completed`.
-20. Route immediate repair through `fixer` when quality review requests it.
-21. Finish the turn with `turn.completed`, or leave it open for retry or
+20. Record quality review as `quality.review_completed`.
+21. Route immediate repair through `fixer` when quality review requests it.
+22. Finish the turn with `turn.completed`, or leave it open for retry or
     operator attention.
-22. Orchestrated work should claim a queued item with `work.lease_acquired`
+23. Orchestrated work should claim a queued item with `work.lease_acquired`
     before emitting `work.started`.
-23. Run `flow.checked` after orchestrated execution to confirm the event stream
+24. Run `flow.checked` after orchestrated execution to confirm the event stream
     still follows this contract.
 
 ## Main Flow
@@ -81,7 +85,10 @@ flowchart TD
     DS --> E
     E --> F{"docs.acknowledged?"}
     F -- "No" --> G["Mutating tools and sandbox are blocked"]
-    F -- "Yes" --> WQ["work.queued"]
+    F -- "Yes" --> AM{"UI implementation turn?"}
+    AM -- "Yes" --> AC["antd.api_mapping.completed"]
+    AM -- "No" --> WQ["work.queued"]
+    AC --> WQ
     WQ --> WL["work.lease_acquired"]
     WL --> WS["work.started"]
     WS --> H["agent.started"]
@@ -144,6 +151,10 @@ sequenceDiagram
     Runtime-->>User: acknowledgement template
     User->>Runtime: acknowledge_required_docs
     Runtime->>SessionStore: docs.acknowledged
+    opt UI implementation turn
+        User->>Runtime: record_antd_api_mapping
+        Runtime->>SessionStore: antd.api_mapping.completed
+    end
     Orchestrator->>SessionStore: work.queued
     Orchestrator->>SessionStore: work.lease_acquired
     Orchestrator->>SessionStore: work.started
@@ -206,6 +217,10 @@ developed:
   `docs.acknowledged` earlier in the same turn.
 - On clarification-gated turns, gated `tool.called` events must also have an
   earlier `clarification.resolved`.
+- UI implementation tool calls must have an earlier
+  `antd.api_mapping.completed` event.
+- `antd.api_mapping.completed` must appear after `docs.acknowledged` when the
+  turn has required documents.
 - Every `agent.completed`, `agent.failed`, or `agent.timed_out` must match an
   earlier `agent.started`.
 - Every `tool.completed` or `tool.failed` must match an earlier `tool.called`

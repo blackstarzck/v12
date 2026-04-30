@@ -109,6 +109,13 @@
 - Fallback actions: complete, complete_with_reminders, recommend_immediate_fix, recommend_specialist_fixer
 - Events: `validation.completed`, `reviewer.questions_ready`, `quality.review_completed`, `turn.needs_attention`
 
+### AntD API Mapping Gate
+
+- Responsibility: block visible UI implementation until the turn records how IA or user-requested visible data, states, actions, and layout roles map to selected AntD component APIs and props
+- Event: `antd.api_mapping.completed`
+- Enforcement: UI implementation tools such as `repo.write`, `git.apply_patch`, `shell.run`, and `sandbox.execute` are blocked before the mapping event
+- Scope: applies to UI-labeled documents and UI-looking paths; validator tools are not blocked by this gate
+
 ### Acknowledgement Templates
 
 - Responsibility: capture extracted constraints per required document before execution

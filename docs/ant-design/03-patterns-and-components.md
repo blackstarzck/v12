@@ -70,7 +70,9 @@ Rules:
 Preferred components:
 
 - `Table`: sortable, comparable structured data.
-- `Card`: bounded summary or repeated item.
+- `Card`: bounded summary or repeated item. In app code, use
+  `src/components/shared/AppCard.tsx` for user-facing Card surfaces so themes
+  have a stable `.app-card` hook.
 - `Descriptions`: read-only detail metadata.
 - `Statistic`: important metrics.
 - `Progress`: target completion or exam progress.
@@ -86,6 +88,9 @@ Rules:
 - Use `Table` for records users compare or sort.
 - Use `Card` plus `Flex` or `Space` for simpler scans, feed summaries, or
   bounded repeated items.
+- Do not create theme-specific Card wrappers such as `LiquidGlassCard`.
+  Theme-specific surface and child-component styling belongs in the theme
+  preset, scoped to `.app-card`.
 - Use `Descriptions` for stable metadata in detail pages.
 - Use `Statistic` only for numbers that matter.
 - Avoid overusing cards for every section.
