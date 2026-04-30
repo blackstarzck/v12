@@ -1,13 +1,10 @@
 import {
   Alert,
   Button,
-  Card,
   Col,
   Descriptions,
-  Drawer,
   Flex,
   Grid,
-  Modal,
   Progress,
   Radio,
   Row,
@@ -19,6 +16,9 @@ import {
 } from 'antd';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AppDrawer } from '../components/shared/AppDrawer';
+import { AppModal } from '../components/shared/AppModal';
+import { AppCard } from '../components/shared/AppCard';
 import { PageHeader } from '../components/shared/PageHeader';
 
 interface MockExamPageProps {
@@ -80,7 +80,7 @@ export function MockExamPage({ mode = 'results' }: MockExamPageProps) {
         />
         <Row gutter={[16, 16]} align="top">
           <Col xs={24} lg={16}>
-            <Card>
+            <AppCard>
               <Space direction="vertical" size={18} style={{ width: '100%' }}>
                 <Alert
                   type="warning"
@@ -114,18 +114,18 @@ export function MockExamPage({ mode = 'results' }: MockExamPageProps) {
                   <Button type="primary">다음 문제</Button>
                 </Space>
               </Space>
-            </Card>
+            </AppCard>
           </Col>
           {screens.lg && (
             <Col xs={24} lg={8}>
-              <Card title={`OMR 답안지 · ${answered}/10문항`}>
+              <AppCard title={`OMR 답안지 · ${answered}/10문항`}>
                 <OmrContent answers={answers} setAnswers={setAnswers} />
-              </Card>
+              </AppCard>
             </Col>
           )}
         </Row>
         {!screens.lg && (
-          <Drawer
+          <AppDrawer
             title={`OMR 답안지 · ${answered}/10문항`}
             placement="bottom"
             open={omrOpen}
@@ -133,9 +133,9 @@ export function MockExamPage({ mode = 'results' }: MockExamPageProps) {
             height="75dvh"
           >
             <OmrContent answers={answers} setAnswers={setAnswers} />
-          </Drawer>
+          </AppDrawer>
         )}
-        <Modal
+        <AppModal
           title="시험을 종료할까요?"
           open={endOpen}
           okText="종료하고 결과 보기"
@@ -144,7 +144,7 @@ export function MockExamPage({ mode = 'results' }: MockExamPageProps) {
           onOk={() => navigate('/mock/results')}
         >
           종료하면 현재 OMR 답안 상태로 채점 결과 화면으로 이동합니다.
-        </Modal>
+        </AppModal>
       </>
     );
   }
@@ -163,22 +163,22 @@ export function MockExamPage({ mode = 'results' }: MockExamPageProps) {
       <Space direction="vertical" size={16} style={{ width: '100%' }}>
         <Row gutter={[12, 12]}>
           <Col xs={24} md={8}>
-            <Card>
+            <AppCard>
               <Statistic title="최근 등급" value="5급 예상" />
-            </Card>
+            </AppCard>
           </Col>
           <Col xs={24} md={8}>
-            <Card>
+            <AppCard>
               <Statistic title="평균 점수" value={176} suffix="/ 300" />
-            </Card>
+            </AppCard>
           </Col>
           <Col xs={24} md={8}>
-            <Card>
+            <AppCard>
               <Statistic title="응시 횟수" value={8} suffix="회" />
-            </Card>
+            </AppCard>
           </Col>
         </Row>
-        <Card title="영역별 점수">
+        <AppCard title="영역별 점수">
           <Space direction="vertical" style={{ width: '100%' }}>
             <Descriptions column={{ xs: 1, md: 3 }}>
               <Descriptions.Item label="듣기">76/100</Descriptions.Item>
@@ -192,8 +192,8 @@ export function MockExamPage({ mode = 'results' }: MockExamPageProps) {
               description="다음 시험 전까지 53번 전개 단락 연습을 3회 완료하는 것을 추천합니다."
             />
           </Space>
-        </Card>
-        <Card title="응시 기록">
+        </AppCard>
+        <AppCard title="응시 기록">
           <Table
             rowKey="id"
             dataSource={examHistory}
@@ -212,7 +212,7 @@ export function MockExamPage({ mode = 'results' }: MockExamPageProps) {
             ]}
             scroll={{ x: 720 }}
           />
-        </Card>
+        </AppCard>
       </Space>
     </>
   );

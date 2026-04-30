@@ -3,12 +3,14 @@ from __future__ import annotations
 import uuid
 from typing import Any, Callable
 
+from .clarification import ensure_clarification_resolved
 from .document_gate import DocumentGate
 from .requirement_analysis import ensure_requirements_analyzed
 from .session_store import FileSessionStore
 
 
 ToolHandler = Callable[[dict[str, Any]], dict[str, Any]]
+PreExecutionGate = Callable[..., None]
 
 SENSITIVE_KEY_MARKERS = (
     "access_key",
@@ -66,6 +68,7 @@ class ToolGateway:
         mutating_tools: set[str] | None = None,
         denied_tools: set[str] | None = None,
         gate_unknown_tools: bool = True,
+        pre_execution_gate: PreExecutionGate | None = None,
     ) -> None:
         self.store = store
         self.gate = gate
@@ -80,6 +83,7 @@ class ToolGateway:
         if denied_tools:
             self.denied_tools.update(denied_tools)
         self.gate_unknown_tools = gate_unknown_tools
+        self.pre_execution_gate = pre_execution_gate
 
     def _requires_gate(self, name: str) -> bool:
         if name in self.read_only_tools:
@@ -175,7 +179,15 @@ class ToolGateway:
         requires_gate = self._requires_gate(name)
         if requires_gate:
             ensure_requirements_analyzed(self.store, session_id=session_id, turn_id=turn_id)
+            ensure_clarification_resolved(self.store, session_id=session_id, turn_id=turn_id)
             self.gate.ensure_open(session_id, turn_id)
+            if self.pre_execution_gate is not None:
+                self.pre_execution_gate(
+                    session_id=session_id,
+                    turn_id=turn_id,
+                    tool_name=name,
+                    payload=payload,
+                )
         event = self.store.emit_event(
             session_id,
             "tool.called",

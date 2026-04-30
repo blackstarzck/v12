@@ -34,6 +34,7 @@
 30. Codex host guard check
 31. tool denylist check
 32. repository hygiene check
+33. AntD API mapping gate check
 
 ## Deterministic Success Path
 
@@ -88,6 +89,18 @@ The reminder path should not hard-block by default. It should behave like a seni
 - call a mutating tool through the gateway
 - expected: `RequirementAnalysisError` and `tool.blocked`
 - then start a normal turn and verify `requirements.analyzed` appears before `docs.required`
+
+## AntD API Mapping Gate Check
+
+- start a UI-impacting turn and acknowledge required docs
+- call an implementation tool before recording `antd.api_mapping.completed`
+- expected: `AntdApiMappingError`, `tool.blocked`, and no `tool.called`
+- record `antd.api_mapping.completed` with component prop mappings
+- call the same implementation tool again
+- expected: `tool.called`, `tool.completed`, and `repo.changed` can proceed
+- create a malformed event stream with UI `tool.called` before
+  `antd.api_mapping.completed`
+- expected: `ExecutionFlowVerifier.verify_turn(...)` returns `status=failed`
 
 ## Role-Skill Assignment Check
 

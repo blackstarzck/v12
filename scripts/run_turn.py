@@ -12,6 +12,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--repo-root", default=".", help="Target repository root.")
     parser.add_argument("--session-id", default=None, help="Resume an existing session.")
     parser.add_argument("--resume-turn", default=None, help="Resume execution for an existing turn after acknowledgement.")
+    parser.add_argument("--clarification-response", default=None, help="Resolve a pending clarification before doc acknowledgement or execution.")
     parser.add_argument("--user-input", default=None, help="User request for this turn.")
     parser.add_argument("--target-path", action="append", default=[], help="Target path touched by the request.")
     parser.add_argument("--auto-ack", action="store_true", help="Automatically acknowledge required docs using generated notes.")
@@ -52,6 +53,23 @@ def print_required_documents(session_id: str, turn_id: str, output: dict[str, ob
     )
 
 
+def print_clarification(session_id: str, turn_id: str, output: dict[str, object], repo_root: Path) -> None:
+    clarification = output["clarification"]
+    print(f"Session: {session_id}")
+    print(f"Turn: {turn_id}")
+    print("Clarification required before theme work:")
+    for index, question in enumerate(clarification.get("questions", []), start=1):
+        print(f"  {index}. {question}")
+    print("Fast-start read scope:")
+    for path in clarification.get("fast_start_paths", []):
+        print(f"  - {path}")
+    print(
+        "Next step: python scripts/run_turn.py "
+        f"--repo-root {repo_root} --session-id {session_id} --resume-turn {turn_id} "
+        '--clarification-response "..."'
+    )
+
+
 def print_browser_review(output: dict[str, object]) -> None:
     reviewer = output.get("reviewer_result", {})
     if not isinstance(reviewer, dict):
@@ -78,7 +96,48 @@ def main() -> int:
     if args.resume_turn:
         if not args.session_id:
             raise SystemExit("Pass --session-id when using --resume-turn.")
-        output = runtime.continue_turn(session_id=args.session_id, turn_id=args.resume_turn)
+        if args.clarification_response:
+            output = runtime.resolve_clarification(
+                session_id=args.session_id,
+                turn_id=args.resume_turn,
+                clarification_response=args.clarification_response,
+            )
+            if args.auto_ack:
+                output["acknowledgement"] = runtime.acknowledge_required_docs(
+                    session_id=args.session_id,
+                    turn_id=args.resume_turn,
+                    auto=True,
+                )
+            elif output["required_documents"]:
+                output["status"] = "awaiting_doc_acknowledgement"
+                output["next_action"] = (
+                    "Review the required documents and run scripts/ack_required_docs.py "
+                    f"--session-id {args.session_id} --turn-id {args.resume_turn} --template"
+                )
+                if args.json:
+                    print(json.dumps(output, ensure_ascii=False, indent=2))
+                    return 0
+                print_required_documents(args.session_id, args.resume_turn, output, repo_root)
+                return 0
+            continued = runtime.continue_turn(session_id=args.session_id, turn_id=args.resume_turn)
+            output.update(continued)
+        else:
+            if runtime.pending_clarification(session_id=args.session_id, turn_id=args.resume_turn):
+                output = {
+                    "session_id": args.session_id,
+                    "turn_id": args.resume_turn,
+                    "status": "awaiting_clarification",
+                    "clarification": runtime.pending_clarification(
+                        session_id=args.session_id,
+                        turn_id=args.resume_turn,
+                    ),
+                }
+                if args.json:
+                    print(json.dumps(output, ensure_ascii=False, indent=2))
+                    return 0
+                print_clarification(args.session_id, args.resume_turn, output, repo_root)
+                return 0
+            output = runtime.continue_turn(session_id=args.session_id, turn_id=args.resume_turn)
         if args.json:
             print(json.dumps(output, ensure_ascii=False, indent=2))
             return 0
@@ -120,6 +179,15 @@ def main() -> int:
         "planner_result": start["planner_result"],
         "requirement_analysis": start["requirement_analysis"],
     }
+
+    if start.get("status") == "awaiting_clarification":
+        output["status"] = "awaiting_clarification"
+        output["clarification"] = start["clarification"]
+        if args.json:
+            print(json.dumps(output, ensure_ascii=False, indent=2))
+            return 0
+        print_clarification(session_id, turn_id, output, repo_root)
+        return 0
 
     if args.auto_ack:
         output["acknowledgement"] = runtime.acknowledge_required_docs(session_id=session_id, turn_id=turn_id, auto=True)

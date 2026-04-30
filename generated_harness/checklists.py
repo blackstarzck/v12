@@ -16,6 +16,10 @@ def build_post_run_questions(required_docs: list[dict], target_paths: list[str])
         questions.append("Did you verify auth, permissions, and database rollback impact?")
     if "frontend" in labels:
         questions.append("Did you check loading, error, empty states, and accessibility?")
+    if "theme" in labels or "theme-clarification" in labels:
+        questions.append(
+            "Did you keep the theme change inside the confirmed scope and verify the intended appearance modes?"
+        )
     if any("config" in path.lower() for path in target_paths):
         questions.append("Did you confirm environment or configuration defaults are safe?")
     deduped: list[str] = []
@@ -35,6 +39,8 @@ def infer_open_risks(required_docs: list[dict], target_paths: list[str]) -> list
         risks.append("Backend changes often need explicit auth and error-path review.")
     if "frontend" in labels:
         risks.append("Frontend changes often miss loading, empty, or accessibility states.")
+    if "theme" in labels or "theme-clarification" in labels:
+        risks.append("Theme changes can leak into unrelated screens if global and component token scopes are mixed.")
     if any("db" in path.lower() or "schema" in path.lower() for path in target_paths):
         risks.append("Schema changes should include rollback notes and downstream compatibility checks.")
     return risks

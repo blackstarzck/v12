@@ -9,7 +9,9 @@
 - tool events should include `agent_run_id` when a role execution caused the call
 - sandbox tool events should also include `sandbox_ref`
 - mutating and unknown tool calls require `requirements.analyzed` for the current turn
+- turns that emitted `clarification.required` must also record `clarification.resolved` before mutating or unknown tool calls continue
 - required-doc acknowledgement is checked before write, shell, sandbox, and unknown tools
+- sandbox provisioning is also blocked until required theme clarification is resolved when the turn asked for it
 - sandbox provisioning is also blocked until required-doc acknowledgement when the turn has required documents
 - sandbox execution requires a known, active `sandbox_ref`
 - disposed or failed sandboxes cannot be reused; the orchestrator must provision a replacement sandbox
@@ -38,6 +40,7 @@
 
 ## Requires Requirement Analysis And Required-Doc Acknowledgement
 
+- `clarification.required` -> `clarification.resolved`: required first on theme-scoped turns before document acknowledgement or execution can continue
 - `shell.run`: runs commands and can mutate files or external systems
 - `sandbox.execute`: runs isolated commands
 - `repo.write`: mutates repository state

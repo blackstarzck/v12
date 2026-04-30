@@ -56,6 +56,7 @@ function createThemeDefinition<Name extends string>(
     label: preset.label,
     description: preset.description,
     antd,
+    globalStyles: appearanceConfig.globalStyles,
   };
 }
 

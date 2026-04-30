@@ -1,6 +1,5 @@
 import {
   Button,
-  Card,
   Empty,
   Input,
   Select,
@@ -12,6 +11,7 @@ import {
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useNavigate } from 'react-router-dom';
+import { AppCard } from '../components/shared/AppCard';
 import { PageHeader } from '../components/shared/PageHeader';
 import { feedbackRecords } from '../data/mockData';
 import { useFeedbackStore } from '../stores/useFeedbackStore';
@@ -91,7 +91,7 @@ export function WritingFeedbackListPage() {
           </Button>
         }
       />
-      <Card>
+      <AppCard>
         <Space wrap style={{ marginBottom: 16 }}>
           <Input.Search
             aria-label="쓰기 피드백 검색"
@@ -129,7 +129,7 @@ export function WritingFeedbackListPage() {
             { key: 'draft', label: '임시 보관 내역', children: renderTable(true) },
           ]}
         />
-      </Card>
+      </AppCard>
     </>
   );
 }

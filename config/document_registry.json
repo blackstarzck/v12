@@ -392,6 +392,69 @@
         "max_chunk_lines": 120,
         "max_heading_depth": 3
       }
+    },
+    {
+      "doc_id": "theme-fast-start",
+      "path": "docs/harness/theme-fast-start.md",
+      "summary": "Fast-start map for theme work that requires explicit scope confirmation before planning or broad code inspection.",
+      "priority": 99,
+      "keywords": [
+        "theme",
+        "theming",
+        "token",
+        "tokens",
+        "appearance",
+        "preset",
+        "dark mode",
+        "light mode",
+        "brand color",
+        "component token",
+        "global token",
+        "테마",
+        "토큰",
+        "다크모드",
+        "라이트모드",
+        "프리셋"
+      ],
+      "intent_patterns": [
+        "theme",
+        "theming",
+        "customize",
+        "refactor",
+        "update",
+        "modify",
+        "change theme",
+        "테마",
+        "토큰",
+        "커스텀"
+      ],
+      "path_globs": [
+        "src/theme/**",
+        "src/styles/**",
+        "src/main.tsx",
+        "docs/harness/theme-fast-start.md"
+      ],
+      "content_patterns": [
+        "ConfigProvider",
+        "getAppTheme",
+        "theme\\.useToken",
+        "sharedComponentTokens",
+        "defaultThemePreset"
+      ],
+      "labels": [
+        "theme",
+        "theme-clarification",
+        "workflow"
+      ],
+      "section_hints": [
+        "Mandatory Clarification",
+        "First-Pass Code Map",
+        "Expand Scope Only When"
+      ],
+      "toc": {
+        "max_chunk_lines": 120,
+        "max_heading_depth": 3
+      }
     }
   ]
 }

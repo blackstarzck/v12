@@ -1,5 +1,15 @@
-import { Alert, Button, Card, DatePicker, Form, Input, Select, Space, Tabs } from 'antd';
+import {
+  Alert,
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  Select,
+  Space,
+  Tabs,
+} from 'antd';
 import dayjs from 'dayjs';
+import { AppCard } from '../components/shared/AppCard';
 import { PageHeader } from '../components/shared/PageHeader';
 import { useUserStore } from '../stores/useUserStore';
 
@@ -12,7 +22,7 @@ export function ProfileSettingsPage() {
         title="프로필 설정"
         description="기본 프로필, 학습 목표, 언어 설정을 관리합니다."
       />
-      <Card>
+      <AppCard>
         <Tabs
           items={[
             {
@@ -82,7 +92,7 @@ export function ProfileSettingsPage() {
             },
           ]}
         />
-      </Card>
+      </AppCard>
     </>
   );
 }

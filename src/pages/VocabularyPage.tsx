@@ -1,5 +1,14 @@
-import { Button, Card, Empty, List, Radio, Space, Tag, Typography } from 'antd';
+import {
+  Button,
+  Empty,
+  List,
+  Radio,
+  Space,
+  Tag,
+  Typography,
+} from 'antd';
 import { useState } from 'react';
+import { AppCard } from '../components/shared/AppCard';
 import { PageHeader } from '../components/shared/PageHeader';
 import { vocabularyItems } from '../data/mockData';
 
@@ -33,7 +42,7 @@ export function VocabularyPage() {
             dataSource={reviewWords}
             renderItem={(item) => (
               <List.Item>
-                <Card>
+                <AppCard>
                   <Space direction="vertical" style={{ width: '100%' }}>
                     <Tag>{item.level}</Tag>
                     <Typography.Title level={3}>{item.word}</Typography.Title>
@@ -41,7 +50,7 @@ export function VocabularyPage() {
                     <Typography.Paragraph type="secondary">{item.example}</Typography.Paragraph>
                     <Button block>암기 완료! 목록에서 제거</Button>
                   </Space>
-                </Card>
+                </AppCard>
               </List.Item>
             )}
           />

@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+from .antd_api_mapping import AntdApiMappingGate
 from .session_store import FileSessionStore
 
 
@@ -125,8 +126,12 @@ class SessionReplayer:
             return "already_completed"
         if not state["requirements_analyzed"]:
             return "analyze_requirements"
+        if state["clarification_required"] and not state["clarification_resolved"]:
+            return "resolve_clarification"
         if state["required_documents"] and not state["docs_acknowledged"]:
             return "acknowledge_required_docs"
+        if state["antd_api_mapping_required"] and not state["antd_api_mapping"]:
+            return "record_antd_api_mapping"
         if state["open_tool_calls"]:
             return "close_open_tool_calls"
         if state["open_agent_runs"]:
@@ -143,8 +148,17 @@ class SessionReplayer:
         ]
         turn_started = next((event for event in events if event["event_type"] == "turn.started"), None)
         requirements = next((event for event in events if event["event_type"] == "requirements.analyzed"), None)
+        clarification_required = next((event for event in events if event["event_type"] == "clarification.required"), None)
+        clarification_resolved = next(
+            (event for event in reversed(events) if event["event_type"] == "clarification.resolved"),
+            None,
+        )
         docs_required = next((event for event in events if event["event_type"] == "docs.required"), None)
         docs_acknowledged = next((event for event in events if event["event_type"] == "docs.acknowledged"), None)
+        antd_api_mapping = next(
+            (event for event in reversed(events) if event["event_type"] == "antd.api_mapping.completed"),
+            None,
+        )
         quality_review = next(
             (event for event in reversed(events) if event["event_type"] == "quality.review_completed"),
             None,
@@ -166,6 +180,7 @@ class SessionReplayer:
             for event in events
             if event["event_type"] in {"validation.requested", "validation.completed"}
         ]
+        antd_gate = AntdApiMappingGate(self.store)
         state = {
             "session_id": session_id,
             "turn_id": turn_id,
@@ -173,8 +188,15 @@ class SessionReplayer:
             "event_count": len(events),
             "turn_started": turn_started.get("payload") if turn_started else None,
             "requirements_analyzed": requirements.get("payload") if requirements else None,
+            "clarification_required": clarification_required.get("payload") if clarification_required else None,
+            "clarification_resolved": clarification_resolved.get("payload") if clarification_resolved else None,
             "required_documents": docs_required.get("payload", {}).get("documents", []) if docs_required else [],
             "docs_acknowledged": docs_acknowledged.get("payload") if docs_acknowledged else None,
+            "antd_api_mapping_required": antd_gate.requires_mapping(
+                session_id=session_id,
+                turn_id=turn_id,
+            ),
+            "antd_api_mapping": antd_api_mapping.get("payload") if antd_api_mapping else None,
             "agents": list(agents.values()),
             "open_agent_runs": open_agents,
             "tools": list(tools.values()),
@@ -211,6 +233,16 @@ class SessionReplayer:
             f"Acknowledged docs: {', '.join(acknowledged_doc_ids) if acknowledged_doc_ids else 'none'}.",
             f"Changed paths: {', '.join(state['changed_paths']) if state['changed_paths'] else 'none'}.",
         ]
+        if state["antd_api_mapping_required"]:
+            summary_parts.append(
+                "AntD API mapping: "
+                + ("completed." if state["antd_api_mapping"] else "pending.")
+            )
+        if state["clarification_required"]:
+            summary_parts.append(
+                "Clarification: "
+                + ("resolved." if state["clarification_resolved"] else "pending.")
+            )
         if state["quality_review"]:
             summary_parts.append(f"Quality fallback: {state['quality_review'].get('fallback_action')}.")
         compact = {
@@ -221,6 +253,9 @@ class SessionReplayer:
             "summary": " ".join(summary_parts),
             "required_doc_ids": required_doc_ids,
             "acknowledged_doc_ids": acknowledged_doc_ids,
+            "antd_api_mapping_required": state["antd_api_mapping_required"],
+            "antd_api_mapping_completed": bool(state["antd_api_mapping"]),
+            "clarification_status": "resolved" if state["clarification_resolved"] else ("pending" if state["clarification_required"] else "not_required"),
             "changed_paths": state["changed_paths"],
             "open_tool_calls": state["open_tool_calls"],
             "open_agent_runs": state["open_agent_runs"],

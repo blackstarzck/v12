@@ -1,7 +1,6 @@
 import {
   Alert,
   Button,
-  Card,
   Col,
   Empty,
   Progress,
@@ -19,6 +18,7 @@ import {
   StarOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { AppCard } from '../components/shared/AppCard';
 import { PageHeader } from '../components/shared/PageHeader';
 import { usePracticeStore } from '../stores/usePracticeStore';
 
@@ -65,7 +65,7 @@ export function PracticeSolvePage() {
 
       <Row gutter={[16, 16]} align="top">
         <Col xs={24} lg={16}>
-          <Card>
+          <AppCard>
             <Space direction="vertical" size={20} style={{ width: '100%' }}>
               <Progress percent={Math.round(((currentIndex + 1) / questions.length) * 100)} />
               <Typography.Title level={3}>{question.title}</Typography.Title>
@@ -89,12 +89,12 @@ export function PracticeSolvePage() {
                 />
               )}
             </Space>
-          </Card>
+          </AppCard>
         </Col>
 
         <Col xs={24} lg={8}>
           <Space direction="vertical" size={16} style={{ width: '100%' }}>
-            <Card title="문제 조작">
+            <AppCard title="문제 조작">
               <Space direction="vertical" style={{ width: '100%' }}>
                 <Button
                   type="primary"
@@ -126,16 +126,16 @@ export function PracticeSolvePage() {
                   </Button>
                 </Tooltip>
               </Space>
-            </Card>
+            </AppCard>
 
-            <Card title="다음 학습">
+            <AppCard title="다음 학습">
               <Typography.Paragraph type="secondary">
                 오답이면 해설을 읽고 같은 유형 문제를 한 번 더 생성해보세요.
               </Typography.Paragraph>
               <Button block onClick={() => navigate('/practice/create')}>
                 비슷한 문제 만들기
               </Button>
-            </Card>
+            </AppCard>
           </Space>
         </Col>
       </Row>

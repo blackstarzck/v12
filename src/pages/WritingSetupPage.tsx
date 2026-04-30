@@ -1,7 +1,6 @@
 import {
   Alert,
   Button,
-  Card,
   Col,
   Flex,
   Input,
@@ -13,6 +12,7 @@ import {
   Typography,
 } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { AppCard } from '../components/shared/AppCard';
 import { PageHeader } from '../components/shared/PageHeader';
 import { writingGuides } from '../data/mockData';
 import { useWritingStore } from '../stores/useWritingStore';
@@ -34,7 +34,7 @@ export function WritingSetupPage() {
 
       <Row gutter={[16, 16]} align="top">
         <Col xs={24} lg={16}>
-          <Card>
+          <AppCard>
             <Space direction="vertical" size={20} style={{ width: '100%' }}>
               <div>
                 <Typography.Title level={4}>쓰기 유형</Typography.Title>
@@ -85,7 +85,7 @@ export function WritingSetupPage() {
                 {cta}
               </Button>
             </Space>
-          </Card>
+          </AppCard>
         </Col>
 
         <Col xs={24} lg={8}>
@@ -101,7 +101,7 @@ export function WritingSetupPage() {
               }
             />
 
-            <Card title="연습 방식">
+            <AppCard title="연습 방식">
               <List
                 size="small"
                 dataSource={[
@@ -115,7 +115,7 @@ export function WritingSetupPage() {
                   </List.Item>
                 )}
               />
-            </Card>
+            </AppCard>
           </Space>
         </Col>
       </Row>

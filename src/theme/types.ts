@@ -7,10 +7,17 @@ export interface AppAppearanceOption {
   label: string;
 }
 
+export interface AppThemeOption<Name extends string = string> {
+  value: Name;
+  label: string;
+  description: string;
+}
+
 export interface AppThemeAppearanceConfig {
   algorithm?: ThemeConfig['algorithm'];
   token?: ThemeConfig['token'];
   components?: ThemeConfig['components'];
+  globalStyles?: string;
 }
 
 export interface AppThemePreset<Name extends string = string> {
@@ -26,6 +33,7 @@ export interface AppThemeDefinition<Name extends string = string> {
   label: string;
   description: string;
   antd: ThemeConfig;
+  globalStyles?: string;
 }
 
 export type AppThemeRegistry<Name extends string = string> = Record<

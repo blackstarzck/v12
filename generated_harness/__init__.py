@@ -1,4 +1,6 @@
 from .codex_adapter import CodexToolAdapter, CodexToolCall
+from .antd_api_mapping import AntdApiMappingError, AntdApiMappingGate
+from .clarification import ClarificationRequiredError
 from .flow_contract import ExecutionFlowVerifier, FlowCheckResult
 from .host_integration import (
     CODEX_HOST_TOOL_EXAMPLES,
@@ -19,6 +21,9 @@ __all__ = [
     "CodexToolAdapter",
     "CodexToolCall",
     "CODEX_HOST_TOOL_EXAMPLES",
+    "AntdApiMappingError",
+    "AntdApiMappingGate",
+    "ClarificationRequiredError",
     "CodexHostGuard",
     "ExecutionFlowVerifier",
     "FlowCheckResult",
